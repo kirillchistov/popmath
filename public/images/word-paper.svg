@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 200" fill="none">
+  <rect width="420" height="200" fill="#f7f6f2"/>
+  <rect x="16" y="16" width="388" height="168" rx="8" fill="#fff" stroke="#c9c4bb"/>
+  <rect x="16" y="16" width="388" height="36" fill="rgba(13,107,111,0.10)"/>
+  <text x="36" y="40" font-size="14" fill="#5c574e" font-family="ui-sans-serif, system-ui"></text>
+  <text x="90" y="40" font-size="14" fill="#5c574e" font-family="ui-sans-serif, system-ui">!B>@>=K, <<</text>
+  <line x1="16" y1="52" x2="404" y2="52" stroke="#c9c4bb"/>
+  <text x="36" y="80" font-size="16" fill="#28251d" font-family="Georgia, serif">1</text>
+  <text x="90" y="80" font-size="16" fill="#28251d" font-family="Georgia, serif">297 × 210</text>
+  <text x="36" y="112" font-size="16" fill="#28251d" font-family="Georgia, serif">2</text>
+  <text x="90" y="112" font-size="16" fill="#28251d" font-family="Georgia, serif">841 × 594</text>
+  <text x="36" y="144" font-size="16" fill="#28251d" font-family="Georgia, serif">3</text>
+  <text x="90" y="144" font-size="16" fill="#28251d" font-family="Georgia, serif">148 × 105</text>
+  <text x="36" y="176" font-size="16" fill="#28251d" font-family="Georgia, serif">4</text>
+  <text x="90" y="176" font-size="16" fill="#28251d" font-family="Georgia, serif">420 × 297</text>
+</svg>
