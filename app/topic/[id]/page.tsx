@@ -2,7 +2,12 @@ import { notFound } from 'next/navigation';
 import { AppShell } from '@/components/AppShell';
 import { PracticeFlow } from '@/components/PracticeFlow';
 import { getTopic } from '@/lib/content';
+import { todayISO } from '@/lib/plan';
+import { markOpenedNewTopic } from '@/lib/plan-store';
 import { requireSession } from '@/lib/session';
+import { getStudentPlan } from '@/lib/student-plan';
+
+export const runtime = 'nodejs';
 
 interface TopicPageProps {
   params: Promise<{ id: string }>;
@@ -13,6 +18,14 @@ export default async function TopicPage({ params }: TopicPageProps) {
   const { id } = await params;
   const topic = getTopic(id);
   if (!topic) notFound();
+
+  if (session.role === 'student') {
+    const plan = await getStudentPlan(session.username);
+    const state = plan.progress.find((item) => item.topic_id === topic.id)?.state;
+    if (state === 'untouched') {
+      await markOpenedNewTopic(session.username, todayISO());
+    }
+  }
 
   return (
     <AppShell session={session} currentPath={`/topic/${topic.id}`}>

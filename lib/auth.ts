@@ -54,6 +54,13 @@ export function getAuthUser(username: string): AuthUser | undefined {
   return parseAuthUsers().get(username);
 }
 
+export function listStudentUsernames(extra: string[] = []): string[] {
+  const fromEnv = [...parseAuthUsers().values()]
+    .filter((user) => user.role === 'student')
+    .map((user) => user.username);
+  return [...new Set([...fromEnv, ...extra])];
+}
+
 export function verifyCredentials(username: string, password: string): boolean {
   const user = getAuthUser(username);
   return user !== undefined && user.password === password;

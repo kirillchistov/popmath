@@ -1,6 +1,5 @@
 import Link from 'next/link';
-import { ThemeToggle } from './ThemeProvider';
-import { LogoutButton } from './LogoutButton';
+import { AppNav } from './AppNav';
 import type { SessionPayload } from '@/lib/types';
 
 const studentLinks = [
@@ -10,14 +9,6 @@ const studentLinks = [
   { href: '/review', label: 'Разбор' },
   { href: '/map', label: 'Карта' },
 ];
-
-function isCurrent(currentPath: string, href: string) {
-  if (href === '/') return currentPath === '/';
-  if (href === '/task') {
-    return currentPath === '/task' || currentPath.startsWith('/topic/');
-  }
-  return currentPath === href || currentPath.startsWith(`${href}/`);
-}
 
 interface AppShellProps {
   session: SessionPayload;
@@ -50,25 +41,10 @@ export function AppShell({ session, currentPath, children }: AppShellProps) {
             <h1>Быстрый ход</h1>
           </div>
         </Link>
-        <div className="toolbar">
-          <nav className="nav-links" aria-label="Основное меню">
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                aria-current={isCurrent(currentPath, link.href) ? 'page' : undefined}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-          <span className="eyebrow">{session.username}</span>
-          <ThemeToggle />
-          <LogoutButton />
-        </div>
+        <AppNav username={session.username} currentPath={currentPath} links={links} />
       </header>
       <main id="main">{children}</main>
-      <footer className="footer-note">Этап 1: квиз, тема, практика и разбор ошибок.</footer>
+      <footer className="footer-note">Этап 2: сегодня один шаг и очередь на неделю.</footer>
     </div>
   );
 }

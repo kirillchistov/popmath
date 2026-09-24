@@ -101,3 +101,26 @@ export interface Attempt {
 export type AttemptDraft = Omit<Attempt, 'id' | 'created_at' | 'self_tag'> & {
   self_tag?: ErrorCode | null;
 };
+
+export type TopicState = 'holds' | 'shaky' | 'hole' | 'untouched';
+
+export interface TopicProgress {
+  topic_id: string;
+  state: TopicState;
+  correct: number;
+  wrong: number;
+  last_at: string | null;
+}
+
+export interface QueueItem {
+  topic_id: string;
+  role: 'focus' | 'review';
+  reason: string;
+  minutes: number;
+}
+
+export interface PlanOverride {
+  student_id: string;
+  order: string[];
+  opened_new_topic_on: string | null;
+}

@@ -91,11 +91,11 @@ export function QuizFlow({ questions }: QuizFlowProps) {
           <p>Типовые ходы держатся. Можно всё равно пройти одну тему медленно.</p>
         )}
         <div className="hero-actions">
-          <Link className="btn btn-primary" href="/review">
-            К разбору
+          <Link className="btn btn-primary" href="/">
+            Что сегодня
           </Link>
-          <Link className="btn" href="/task">
-            К темам
+          <Link className="btn" href="/review">
+            К разбору
           </Link>
         </div>
       </article>
