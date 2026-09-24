@@ -1,8 +1,9 @@
-import type { Topic, TopicMeta } from './types';
+import type { QuizQuestion, Task, Topic, TopicMeta } from './types';
 import equations from '@/content/topics/equations.json';
 import inequalities from '@/content/topics/inequalities.json';
 import word from '@/content/topics/word.json';
 import functions from '@/content/topics/functions.json';
+import quiz from '@/content/quiz.json';
 
 const topics: Topic[] = [
   equations as Topic,
@@ -28,4 +29,20 @@ export function getAllTopics(): TopicMeta[] {
 
 export function getTopic(id: string): Topic | undefined {
   return topics.find((topic) => topic.id === id);
+}
+
+export function getQuizQuestions(): QuizQuestion[] {
+  return quiz as QuizQuestion[];
+}
+
+export function getQuizQuestion(id: string): QuizQuestion | undefined {
+  return getQuizQuestions().find((item) => item.id === id);
+}
+
+export function getTask(taskId: string): { topic: Topic; task: Task } | undefined {
+  for (const topic of topics) {
+    const task = topic.tasks.find((item) => item.id === taskId);
+    if (task) return { topic, task };
+  }
+  return undefined;
 }

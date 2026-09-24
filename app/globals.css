@@ -319,8 +319,207 @@ p {
   font-size: var(--text-sm);
 }
 
+.topic-card {
+  color: inherit;
+}
+
+.question-card,
+.practice-card,
+.review-card,
+.section-card {
+  padding: var(--space-6);
+  display: grid;
+  gap: var(--space-4);
+}
+
+.question-head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: var(--radius-full);
+  padding: 0.35rem 0.75rem;
+  background: var(--color-primary-2);
+  font-size: var(--text-xs);
+  border: 1px solid var(--color-border);
+}
+
+.timer {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.progress {
+  height: 10px;
+  background: var(--color-surface-2);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.progress > span {
+  display: block;
+  height: 100%;
+  background: var(--color-primary);
+}
+
+.timer-toggle {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.pill-row {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.pill {
+  padding: 0.45rem 0.8rem;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.prompt {
+  color: var(--color-text);
+  font-size: var(--text-lg);
+}
+
+.options {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.option {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+}
+
+.option.selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-2);
+}
+
+.input-answer {
+  width: min(280px, 100%);
+  min-height: 48px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+  padding: 0 var(--space-4);
+  color: var(--color-text);
+}
+
+.feedback {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+}
+
+.feedback.ok {
+  background: color-mix(in srgb, var(--color-success) 16%, var(--color-surface));
+  border: 1px solid color-mix(in srgb, var(--color-success) 35%, var(--color-border));
+}
+
+.feedback.bad {
+  background: color-mix(in srgb, var(--color-error) 14%, var(--color-surface));
+  border: 1px solid color-mix(in srgb, var(--color-error) 35%, var(--color-border));
+}
+
+.memory-illustration {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.memory-box {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+}
+
+.memory-box.good {
+  outline: 2px solid color-mix(in srgb, var(--color-success) 25%, transparent);
+}
+
+.memory-box.bad {
+  outline: 2px solid color-mix(in srgb, var(--color-error) 22%, transparent);
+}
+
+.algorithm {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: 1fr 1fr;
+}
+
+.steps {
+  display: grid;
+  gap: var(--space-3);
+  counter-reset: step;
+  margin-top: var(--space-4);
+}
+
+.step {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.step::before {
+  counter-increment: step;
+  content: counter(step);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  font-weight: 700;
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.tag-btn {
+  min-height: 40px;
+  padding: 0 0.85rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+}
+
+.tag-btn.active {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: transparent;
+}
+
 @media (max-width: 800px) {
-  .topic-grid {
+  .topic-grid,
+  .algorithm,
+  .memory-illustration {
     grid-template-columns: 1fr;
   }
 }

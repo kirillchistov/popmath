@@ -5,10 +5,19 @@ import type { SessionPayload } from '@/lib/types';
 
 const studentLinks = [
   { href: '/', label: 'Сегодня' },
-  { href: '/task', label: 'Задача' },
+  { href: '/quiz', label: 'Квиз' },
+  { href: '/task', label: 'Темы' },
   { href: '/review', label: 'Разбор' },
   { href: '/map', label: 'Карта' },
 ];
+
+function isCurrent(currentPath: string, href: string) {
+  if (href === '/') return currentPath === '/';
+  if (href === '/task') {
+    return currentPath === '/task' || currentPath.startsWith('/topic/');
+  }
+  return currentPath === href || currentPath.startsWith(`${href}/`);
+}
 
 interface AppShellProps {
   session: SessionPayload;
@@ -47,7 +56,7 @@ export function AppShell({ session, currentPath, children }: AppShellProps) {
               <Link
                 key={link.href}
                 href={link.href}
-                aria-current={currentPath === link.href ? 'page' : undefined}
+                aria-current={isCurrent(currentPath, link.href) ? 'page' : undefined}
               >
                 {link.label}
               </Link>
@@ -59,7 +68,7 @@ export function AppShell({ session, currentPath, children }: AppShellProps) {
         </div>
       </header>
       <main id="main">{children}</main>
-      <footer className="footer-note">Этап 0: каркас, вход и четыре темы из заготовки.</footer>
+      <footer className="footer-note">Этап 1: квиз, тема, практика и разбор ошибок.</footer>
     </div>
   );
 }

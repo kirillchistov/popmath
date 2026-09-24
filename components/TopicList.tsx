@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { TopicMeta } from '@/lib/types';
 
 const symbols: Record<TopicMeta['accent'], string> = {
@@ -11,7 +12,7 @@ export function TopicList({ topics }: { topics: TopicMeta[] }) {
   return (
     <div className="topic-grid">
       {topics.map((topic) => (
-        <article className="topic-card" key={topic.id}>
+        <Link className="topic-card" key={topic.id} href={`/topic/${topic.id}`}>
           <div className="topic-head">
             <div>
               <h3>{topic.title}</h3>
@@ -20,7 +21,7 @@ export function TopicList({ topics }: { topics: TopicMeta[] }) {
             <div className={`topic-symbol theme-${topic.accent}`}>{symbols[topic.accent]}</div>
           </div>
           <p className="eyebrow">{topic.taskCount} задач в теме</p>
-        </article>
+        </Link>
       ))}
     </div>
   );

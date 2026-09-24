@@ -54,3 +54,50 @@ export interface AuthUser {
   password: string;
   role: UserRole;
 }
+
+export type ErrorCode =
+  | 'knowledge'
+  | 'algorithm'
+  | 'inattention'
+  | 'calculation'
+  | 'freeze'
+  | 'strategy';
+
+export interface QuizQuestion {
+  id: string;
+  topic_label: string;
+  hint: string;
+  prompt: string;
+  options: string[];
+  answer: string;
+  explain_ok: string;
+  explain_trap: string;
+  review_title: string;
+  time_sec: number;
+  topic_id: string | null;
+}
+
+export interface Attempt {
+  id: string;
+  student_id: string;
+  task_id: string;
+  kind: TaskKind;
+  prompt: string;
+  raw_answer: string;
+  expected: string;
+  correct: boolean;
+  elapsed_ms: number;
+  timed_out: boolean;
+  skipped: boolean;
+  error_codes: ErrorCode[];
+  self_tag: ErrorCode | null;
+  explain_ok: string;
+  explain_trap: string;
+  review_title: string;
+  topic_id: string | null;
+  created_at: string;
+}
+
+export type AttemptDraft = Omit<Attempt, 'id' | 'created_at' | 'self_tag'> & {
+  self_tag?: ErrorCode | null;
+};
