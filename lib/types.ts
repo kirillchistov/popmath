@@ -2,6 +2,8 @@ export type UserRole = 'student' | 'tutor';
 
 export type TaskKind = 'quiz' | 'practice' | 'check';
 
+export type TimerMode = 'off' | 'soft' | 'exam';
+
 export interface Support {
   title: string;
   body: string;
@@ -95,6 +97,8 @@ export interface Attempt {
   explain_trap: string;
   review_title: string;
   topic_id: string | null;
+  timer_mode?: TimerMode;
+  self_checked?: boolean;
   created_at: string;
 }
 

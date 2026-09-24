@@ -46,3 +46,11 @@ export function getTask(taskId: string): { topic: Topic; task: Task } | undefine
   }
   return undefined;
 }
+
+const CHECK_TASK_IDS = ['equations-1', 'word-1', 'inequalities-1', 'functions-2'];
+
+export function getCheckTasks(): Task[] {
+  return CHECK_TASK_IDS.map((id) => getTask(id)?.task).filter(
+    (task): task is Task => Boolean(task),
+  );
+}

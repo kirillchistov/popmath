@@ -377,12 +377,30 @@ p {
   background: var(--color-primary);
 }
 
-.timer-toggle {
+.timer-toggle,
+.timer-modes {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.timer-hint {
+  font-size: var(--text-sm);
+}
+
+.exam-mode {
+  outline: 2px solid color-mix(in srgb, var(--color-warning) 35%, transparent);
+}
+
+.check-list {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.check-item {
   display: flex;
   gap: var(--space-2);
-  align-items: center;
-  color: var(--color-text-muted);
-  font-size: var(--text-sm);
+  align-items: flex-start;
+  min-height: 44px;
 }
 
 .pill-row {

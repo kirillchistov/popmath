@@ -1,33 +1,50 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { postAttempt } from '@/lib/client-attempts';
+import { readTimerMode, timerSeconds, writeTimerMode } from '@/lib/timer';
+import { PauseScreen } from './PauseScreen';
 import { SelfTag } from './SelfTag';
-import type { Attempt, QuizQuestion } from '@/lib/types';
+import { TimerModeSwitch } from './TimerModeSwitch';
+import type { Attempt, QuizQuestion, TimerMode } from '@/lib/types';
 
 interface QuizFlowProps {
   questions: QuizQuestion[];
 }
 
 export function QuizFlow({ questions }: QuizFlowProps) {
+  const router = useRouter();
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState('');
-  const [timerOn, setTimerOn] = useState(false);
+  const [mode, setMode] = useState<TimerMode>('off');
   const [seconds, setSeconds] = useState(questions[0]?.time_sec ?? 25);
   const [startedAt, setStartedAt] = useState(() => Date.now());
   const [current, setCurrent] = useState<Attempt | null>(null);
   const [attempts, setAttempts] = useState<Attempt[]>([]);
   const [busy, setBusy] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const [streak, setStreak] = useState(0);
   const timerArmed = useRef(false);
 
   const question = questions[index];
   const done = index >= questions.length;
+  const limit = timerSeconds(question?.time_sec ?? 25, mode);
+
+  useEffect(() => {
+    setMode(readTimerMode());
+  }, []);
+
+  const changeMode = (next: TimerMode) => {
+    setMode(next);
+    writeTimerMode(next);
+  };
 
   useEffect(() => {
     timerArmed.current = false;
-    if (!timerOn || done || current || !question) return undefined;
-    setSeconds(question.time_sec);
+    if (mode === 'off' || done || current || paused || !question) return undefined;
+    setSeconds(limit);
     const timer = window.setInterval(() => {
       setSeconds((value) => {
         if (value <= 1) timerArmed.current = true;
@@ -35,15 +52,22 @@ export function QuizFlow({ questions }: QuizFlowProps) {
       });
     }, 1000);
     return () => window.clearInterval(timer);
-  }, [timerOn, index, current, done, question]);
+  }, [mode, index, current, done, paused, question, limit]);
 
   useEffect(() => {
-    if (timerArmed.current && timerOn && !current && !done && seconds === 0) {
+    if (
+      timerArmed.current &&
+      mode !== 'off' &&
+      !current &&
+      !done &&
+      !paused &&
+      seconds === 0
+    ) {
       timerArmed.current = false;
       void submit('', true, false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [seconds, timerOn, current, done]);
+  }, [seconds, mode, current, done, paused]);
 
   const submit = async (answer: string, timedOut: boolean, skipped: boolean) => {
     if (!question || busy || current) return;
@@ -56,15 +80,23 @@ export function QuizFlow({ questions }: QuizFlowProps) {
         elapsed_ms: Date.now() - startedAt,
         timed_out: timedOut,
         skipped,
+        timer_mode: mode,
       });
       setCurrent(attempt);
       setAttempts((list) => [...list, attempt]);
+      setStreak(attempt.correct ? 0 : streak + 1);
     } finally {
       setBusy(false);
     }
   };
 
   const next = () => {
+    if (current && !current.correct && streak >= 3) {
+      setPaused(true);
+      setCurrent(null);
+      setSelected('');
+      return;
+    }
     setCurrent(null);
     setSelected('');
     setStartedAt(Date.now());
@@ -76,20 +108,33 @@ export function QuizFlow({ questions }: QuizFlowProps) {
     [attempts],
   );
 
+  if (paused) {
+    return (
+      <PauseScreen
+        onContinue={() => {
+          changeMode('off');
+          setPaused(false);
+          setStreak(0);
+          setStartedAt(Date.now());
+        }}
+        onCheck={() => router.push('/check')}
+        onHome={() => router.push('/')}
+      />
+    );
+  }
+
   if (done) {
-    const weak = attempts.filter((item) => !item.correct && item.topic_id);
+    const freeze = attempts.filter((item) => item.error_codes.includes('freeze')).length;
+    const inattention = attempts.filter((item) =>
+      item.error_codes.includes('inattention'),
+    ).length;
     return (
       <article className="panel question-card">
         <div className="eyebrow">Квиз</div>
         <h2>Готово. {score} из {questions.length}</h2>
         <p>
-          Это не оценка личности. Это карта: где ход уже есть, а где пока дыра.
+          Это не оценка личности. Ступор: {freeze}. Невнимание: {inattention}.
         </p>
-        {weak.length > 0 ? (
-          <p>Имеет смысл зайти в тему, где срывалось, а не открывать всё сразу.</p>
-        ) : (
-          <p>Типовые ходы держатся. Можно всё равно пройти одну тему медленно.</p>
-        )}
         <div className="hero-actions">
           <Link className="btn btn-primary" href="/">
             Что сегодня
@@ -103,7 +148,7 @@ export function QuizFlow({ questions }: QuizFlowProps) {
   }
 
   return (
-    <article className="panel question-card">
+    <article className={`panel question-card ${mode === 'exam' ? 'exam-mode' : ''}`}>
       <div className="question-head">
         <div>
           <div className="eyebrow">Стартовый квиз</div>
@@ -113,20 +158,13 @@ export function QuizFlow({ questions }: QuizFlowProps) {
           <span>
             {index + 1} / {questions.length}
           </span>
-          {timerOn ? <span className="timer">{formatTime(seconds)}</span> : null}
+          {mode !== 'off' ? <span className="timer">{formatTime(seconds)}</span> : null}
         </div>
       </div>
       <div className="progress" aria-hidden="true">
         <span style={{ width: `${(index / questions.length) * 100}%` }} />
       </div>
-      <label className="timer-toggle">
-        <input
-          type="checkbox"
-          checked={timerOn}
-          onChange={(event) => setTimerOn(event.target.checked)}
-        />
-        Мягкий таймер. По умолчанию выключен.
-      </label>
+      <TimerModeSwitch mode={mode} onChange={changeMode} />
       <div className="pill-row">
         <span className="pill">{question.topic_label}</span>
         <span className="pill">{question.hint}</span>

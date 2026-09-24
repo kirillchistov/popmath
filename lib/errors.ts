@@ -1,3 +1,4 @@
+import { looksLikeInattention } from './answers';
 import type { ErrorCode } from './types';
 
 export function inferErrorCodes(input: {
@@ -5,12 +6,26 @@ export function inferErrorCodes(input: {
   skipped: boolean;
   timed_out: boolean;
   raw_answer: string;
+  expected?: string;
+  trap_answers?: string[];
 }): ErrorCode[] {
   if (input.correct) return [];
+
+  const codes: ErrorCode[] = [];
   if (input.skipped || input.timed_out || !input.raw_answer.trim()) {
-    return ['freeze'];
+    codes.push('freeze');
   }
-  return [];
+  if (
+    input.expected &&
+    looksLikeInattention(
+      input.raw_answer,
+      input.expected,
+      input.trap_answers ?? [],
+    )
+  ) {
+    codes.push('inattention');
+  }
+  return codes;
 }
 
 export const SELF_TAG_OPTIONS: { code: ErrorCode; label: string }[] = [
@@ -18,4 +33,10 @@ export const SELF_TAG_OPTIONS: { code: ErrorCode; label: string }[] = [
   { code: 'algorithm', label: 'Не знала ход' },
   { code: 'inattention', label: 'Знак / не дочитала' },
   { code: 'freeze', label: 'Страх / ступор' },
+];
+
+export const SELF_CHECK_ITEMS = [
+  { id: 'read', label: 'Дочитала условие до конца' },
+  { id: 'sign', label: 'Знак и направление на месте' },
+  { id: 'sense', label: 'Ответ имеет смысл в задаче' },
 ];

@@ -1,0 +1,36 @@
+export const TRAP_ANSWERS: Record<string, string[]> = {
+  'equations-1': ['18'],
+  'equations-2': ['7'],
+  'equations-3': ['10', '4'],
+  'equations-4': ['3', '-3'],
+  'equations-6': ['3', '2'],
+  'inequalities-1': ['x < 4', 'x<4'],
+  'inequalities-2': ['x < -4', 'x<-4', '4'],
+  'inequalities-3': ['-1,7', '-1.7'],
+  'inequalities-6': ['x>2', 'x > 2'],
+  'word-1': ['27'],
+  'word-2': ['73'],
+  'word-3': ['1,5', '1.5'],
+  'word-4': ['220'],
+  'word-5': ['1.4', '1,4'],
+  'word-6': ['24'],
+  'functions-2': ['10', '14'],
+  'functions-3': ['прямая', 'прямой'],
+  'functions-5': ['парабола'],
+  'quiz-01': ['1134', '1323', '980'],
+  'quiz-02': ['1,6', '1.6'],
+  'quiz-04': ['17', '15'],
+  'quiz-05': ['4', '18'],
+  'quiz-06': ['0,7', '0.7', '3/7'],
+  'quiz-08': ['17'],
+  'quiz-09': ['x < 3', 'x<3', 'x > 4'],
+  'quiz-10': ['16', '18'],
+  'quiz-12': ['360°', '360'],
+  'quiz-13': ['ромб', 'прямоугольник'],
+  'quiz-14': ['20', '10'],
+  'quiz-15': ['7', '14'],
+};
+
+export function trapAnswersFor(taskId: string): string[] {
+  return TRAP_ANSWERS[taskId] ?? [];
+}

@@ -8,6 +8,10 @@ export const runtime = 'nodejs';
 export default async function ReviewPage() {
   const session = await requireSession();
   const attempts = (await listAttempts(session.username)).filter((item) => !item.correct);
+  const freeze = attempts.filter((item) => item.error_codes?.includes('freeze')).length;
+  const inattention = attempts.filter((item) =>
+    item.error_codes?.includes('inattention'),
+  ).length;
 
   return (
     <AppShell session={session} currentPath="/review">
@@ -16,8 +20,8 @@ export default async function ReviewPage() {
           <div className="eyebrow">Разбор</div>
           <h2>Как надо / как не надо</h2>
           <p>
-            Здесь только твои срывы. Не рейтинг. Если тег ещё не выбран в квизе,
-            его можно вспомнить по тексту ловушки.
+            Здесь не рейтинг. Ступор: {freeze}. Невнимание: {inattention}.
+            Если пусто или очень долго — это тоже сигнал, не лень.
           </p>
         </article>
         <ReviewList

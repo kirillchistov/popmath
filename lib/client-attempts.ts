@@ -1,4 +1,4 @@
-import type { Attempt, ErrorCode, TaskKind } from './types';
+import type { Attempt, ErrorCode, TaskKind, TimerMode } from './types';
 
 export async function postAttempt(input: {
   task_id: string;
@@ -7,6 +7,8 @@ export async function postAttempt(input: {
   elapsed_ms: number;
   timed_out?: boolean;
   skipped?: boolean;
+  timer_mode?: TimerMode;
+  self_checked?: boolean;
 }): Promise<Attempt> {
   const response = await fetch('/api/attempts', {
     method: 'POST',

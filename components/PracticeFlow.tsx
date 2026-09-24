@@ -1,28 +1,51 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { postAttempt } from '@/lib/client-attempts';
+import { readTimerMode, timerSeconds, writeTimerMode } from '@/lib/timer';
+import { BlankStart } from './BlankStart';
+import { PauseScreen } from './PauseScreen';
+import { SelfCheck, allChecksOn, toggleCheck } from './SelfCheck';
 import { SelfTag } from './SelfTag';
-import type { Attempt, Topic } from '@/lib/types';
+import { TimerModeSwitch } from './TimerModeSwitch';
+import type { Attempt, TimerMode, Topic } from '@/lib/types';
 
 export function PracticeFlow({ topic }: { topic: Topic }) {
+  const router = useRouter();
   const [index, setIndex] = useState(0);
   const [answer, setAnswer] = useState('');
-  const [timerOn, setTimerOn] = useState(false);
+  const [mode, setMode] = useState<TimerMode>('off');
   const [seconds, setSeconds] = useState(topic.tasks[0]?.time_sec ?? 45);
   const [startedAt, setStartedAt] = useState(() => Date.now());
   const [current, setCurrent] = useState<Attempt | null>(null);
   const [busy, setBusy] = useState(false);
   const [finished, setFinished] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const [streak, setStreak] = useState(0);
+  const [checks, setChecks] = useState<string[]>([]);
+  const [blankOpen, setBlankOpen] = useState(topic.id !== 'word');
   const timerArmed = useRef(false);
 
   const task = topic.tasks[index];
+  const limit = timerSeconds(task?.time_sec ?? 45, mode);
+
+  useEffect(() => {
+    setMode(readTimerMode());
+  }, []);
+
+  const changeMode = (next: TimerMode) => {
+    setMode(next);
+    writeTimerMode(next);
+  };
 
   useEffect(() => {
     timerArmed.current = false;
-    if (!timerOn || finished || current || !task) return undefined;
-    setSeconds(task.time_sec);
+    if (mode === 'off' || finished || current || paused || !task || !blankOpen) {
+      return undefined;
+    }
+    setSeconds(limit);
     const timer = window.setInterval(() => {
       setSeconds((value) => {
         if (value <= 1) timerArmed.current = true;
@@ -30,15 +53,22 @@ export function PracticeFlow({ topic }: { topic: Topic }) {
       });
     }, 1000);
     return () => window.clearInterval(timer);
-  }, [timerOn, index, current, finished, task]);
+  }, [mode, index, current, finished, paused, task, blankOpen, limit]);
 
   useEffect(() => {
-    if (timerArmed.current && timerOn && !current && !finished && seconds === 0) {
+    if (
+      timerArmed.current &&
+      mode !== 'off' &&
+      !current &&
+      !finished &&
+      !paused &&
+      seconds === 0
+    ) {
       timerArmed.current = false;
       void submit('', true, false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [seconds, timerOn, current, finished]);
+  }, [seconds, mode, current, finished, paused]);
 
   const submit = async (value: string, timedOut: boolean, skipped: boolean) => {
     if (!task || busy || current) return;
@@ -51,36 +81,67 @@ export function PracticeFlow({ topic }: { topic: Topic }) {
         elapsed_ms: Date.now() - startedAt,
         timed_out: timedOut,
         skipped,
+        timer_mode: mode,
+        self_checked: allChecksOn(checks),
       });
       setCurrent(attempt);
+      const nextStreak = attempt.correct ? 0 : streak + 1;
+      setStreak(nextStreak);
     } finally {
       setBusy(false);
     }
   };
 
-  const next = () => {
+  const advance = () => {
+    if (current && !current.correct && streak >= 3) {
+      setPaused(true);
+      setCurrent(null);
+      setAnswer('');
+      setChecks([]);
+      return;
+    }
     if (index + 1 >= topic.tasks.length) {
       setFinished(true);
       return;
     }
     setCurrent(null);
     setAnswer('');
+    setChecks([]);
     setStartedAt(Date.now());
     setIndex((value) => value + 1);
   };
+
+  if (!blankOpen) {
+    return <BlankStart onOpen={() => setBlankOpen(true)} />;
+  }
+
+  if (paused) {
+    return (
+      <PauseScreen
+        onContinue={() => {
+          changeMode('off');
+          setPaused(false);
+          setStreak(0);
+          setStartedAt(Date.now());
+        }}
+        onCheck={() => router.push('/check')}
+        onHome={() => router.push('/')}
+      />
+    );
+  }
 
   if (finished) {
     return (
       <article className="panel practice-card">
         <div className="eyebrow">Практика</div>
         <h2>Тема пройдена без спешки</h2>
-        <p>Разбор сохранил ошибки. Можно вернуться к карте или посмотреть, где срывался ход.</p>
+        <p>В разборе видно не только верно/неверно, но и ступор или невнимание.</p>
         <div className="hero-actions">
           <Link className="btn btn-primary" href="/review">
             К разбору
           </Link>
-          <Link className="btn" href="/map">
-            К карте
+          <Link className="btn" href="/check">
+            Самопроверка
           </Link>
         </div>
       </article>
@@ -88,7 +149,7 @@ export function PracticeFlow({ topic }: { topic: Topic }) {
   }
 
   return (
-    <article className="panel practice-card">
+    <article className={`panel practice-card ${mode === 'exam' ? 'exam-mode' : ''}`}>
       <div className="question-head">
         <div>
           <div className="eyebrow">Практика</div>
@@ -98,18 +159,15 @@ export function PracticeFlow({ topic }: { topic: Topic }) {
         </div>
         <div className="badge">
           <span>{topic.badge}</span>
-          {timerOn ? <span className="timer">{formatTime(seconds)}</span> : null}
+          {mode !== 'off' ? <span className="timer">{formatTime(seconds)}</span> : null}
         </div>
       </div>
-      <label className="timer-toggle">
-        <input
-          type="checkbox"
-          checked={timerOn}
-          onChange={(event) => setTimerOn(event.target.checked)}
-        />
-        Мягкий таймер. Сначала можно без него.
-      </label>
+      <TimerModeSwitch mode={mode} onChange={changeMode} />
       <p className="prompt">{task.prompt}</p>
+      <SelfCheck
+        checked={checks}
+        onToggle={(id) => setChecks((value) => toggleCheck(value, id))}
+      />
       <div className="form-field" style={{ maxWidth: 420 }}>
         <label className="eyebrow" htmlFor="practice-answer">
           Твой ответ
@@ -145,16 +203,19 @@ export function PracticeFlow({ topic }: { topic: Topic }) {
       ) : (
         <>
           <div className={`feedback show ${current.correct ? 'ok' : 'bad'}`}>
-            <strong>
-              {current.timed_out
-                ? 'Время вышло.'
-                : current.skipped
-                  ? 'Пропущено. Можно вернуться позже.'
-                  : current.correct
-                    ? 'Верно.'
-                    : 'Есть ошибка.'}
-            </strong>{' '}
-            {current.explain_ok}
+            <strong>{feedbackTitle(current)}</strong> {current.explain_ok}
+            {current.error_codes.length > 0 ? (
+              <span>
+                {' '}
+                Система видит:{' '}
+                {current.error_codes
+                  .map((code) =>
+                    code === 'freeze' ? 'ступор' : code === 'inattention' ? 'невнимание' : code,
+                  )
+                  .join(', ')}
+                .
+              </span>
+            ) : null}
           </div>
           {!current.correct ? (
             <>
@@ -172,7 +233,7 @@ export function PracticeFlow({ topic }: { topic: Topic }) {
             </>
           ) : null}
           <div className="hero-actions">
-            <button className="btn btn-primary" type="button" onClick={next}>
+            <button className="btn btn-primary" type="button" onClick={advance}>
               Следующее
             </button>
           </div>
@@ -180,6 +241,16 @@ export function PracticeFlow({ topic }: { topic: Topic }) {
       )}
     </article>
   );
+}
+
+function feedbackTitle(attempt: Attempt) {
+  if (attempt.timed_out) {
+    return attempt.timer_mode === 'exam'
+      ? 'Окно экзамена закрылось. Это тренировка, не приговор.'
+      : 'Время вышло.';
+  }
+  if (attempt.skipped) return 'Пропущено. Можно вернуться позже.';
+  return attempt.correct ? 'Верно.' : 'Есть ошибка.';
 }
 
 function formatTime(total: number) {

@@ -4,7 +4,8 @@ import { getQuizQuestion, getTask } from '@/lib/content';
 import { inferErrorCodes } from '@/lib/errors';
 import { getSession } from '@/lib/session';
 import { listAttempts, saveAttempt } from '@/lib/store';
-import type { AttemptDraft, TaskKind } from '@/lib/types';
+import { trapAnswersFor } from '@/lib/traps';
+import type { AttemptDraft, TaskKind, TimerMode } from '@/lib/types';
 
 export const runtime = 'nodejs';
 
@@ -37,6 +38,8 @@ export async function POST(request: Request) {
     elapsed_ms?: number;
     timed_out?: boolean;
     skipped?: boolean;
+    timer_mode?: TimerMode;
+    self_checked?: boolean;
   };
 
   const taskId = body.task_id?.trim() ?? '';
@@ -97,7 +100,14 @@ export async function POST(request: Request) {
       skipped,
       timed_out: timedOut,
       raw_answer: rawAnswer,
+      expected,
+      trap_answers: trapAnswersFor(taskId),
     }),
+    timer_mode:
+      body.timer_mode === 'soft' || body.timer_mode === 'exam'
+        ? body.timer_mode
+        : 'off',
+    self_checked: Boolean(body.self_checked),
     explain_ok: explainOk,
     explain_trap: explainTrap,
     review_title: reviewTitle,
