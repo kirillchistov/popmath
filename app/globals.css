@@ -1,0 +1,326 @@
+:root,
+[data-theme='light'] {
+  --font-display: Georgia, 'Iowan Old Style', 'Palatino Linotype', serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+  --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+  --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+  --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+  --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.15rem);
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.6rem;
+  --radius-lg: 1rem;
+  --radius-full: 999px;
+  --color-bg: #f7f6f2;
+  --color-surface: #fdfcf9;
+  --color-surface-2: #f3f0ec;
+  --color-border: rgba(40, 37, 29, 0.12);
+  --color-text: #28251d;
+  --color-text-muted: #65625a;
+  --color-text-faint: #9f9b92;
+  --color-primary: #0d6b6f;
+  --color-primary-2: #d9eceb;
+  --color-success: #437a22;
+  --color-warning: #a05a16;
+  --color-error: #a12c7b;
+  --shadow-sm: 0 1px 2px rgba(31, 27, 20, 0.06), 0 8px 24px rgba(31, 27, 20, 0.04);
+  --theme-eq: #1f7a8c;
+  --theme-ineq: #8d5a00;
+  --theme-word: #9d3d54;
+  --theme-func: #4754b8;
+}
+
+[data-theme='dark'] {
+  --color-bg: #171614;
+  --color-surface: #1d1b19;
+  --color-surface-2: #252321;
+  --color-border: rgba(235, 231, 223, 0.12);
+  --color-text: #ece7df;
+  --color-text-muted: #b3aea6;
+  --color-text-faint: #7d786f;
+  --color-primary: #63a8af;
+  --color-primary-2: #253739;
+  --color-success: #83ba5f;
+  --color-warning: #f0b75d;
+  --color-error: #dc78b2;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2), 0 8px 24px rgba(0, 0, 0, 0.2);
+  --theme-eq: #76b9ca;
+  --theme-ineq: #f0c86f;
+  --theme-word: #e08ba1;
+  --theme-func: #93a2ff;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.55;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.app {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: var(--space-4);
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+}
+
+.skip-link:focus {
+  left: var(--space-4);
+  top: var(--space-4);
+  background: var(--color-surface);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  z-index: 100;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  align-items: center;
+  padding: var(--space-3) 0 var(--space-6);
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.brand-mark {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--color-primary-2), transparent),
+    var(--color-surface);
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.eyebrow {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  line-height: 1.15;
+}
+
+h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+}
+
+h2 {
+  font-size: var(--text-lg);
+}
+
+p {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.toolbar,
+.nav-links,
+.hero-actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.nav-links a {
+  min-height: 40px;
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius-full);
+  border: 1px solid transparent;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.nav-links a[aria-current='page'],
+.nav-links a:hover {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.btn {
+  min-height: 46px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: transparent;
+}
+
+.btn-ghost {
+  background: transparent;
+  box-shadow: none;
+}
+
+.panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.section-card,
+.empty-card,
+.login-card {
+  padding: var(--space-6);
+}
+
+.stack {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.topic-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+}
+
+.topic-card {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+  display: grid;
+  gap: var(--space-2);
+}
+
+.topic-head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  align-items: flex-start;
+}
+
+.topic-symbol {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: #fff;
+}
+
+.theme-eq {
+  background: var(--theme-eq);
+}
+.theme-ineq {
+  background: var(--theme-ineq);
+}
+.theme-word {
+  background: var(--theme-word);
+}
+.theme-func {
+  background: var(--theme-func);
+}
+
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+}
+
+.login-card {
+  width: min(420px, 100%);
+  display: grid;
+  gap: var(--space-4);
+}
+
+.form-field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.form-field input {
+  min-height: 48px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+  padding: 0 var(--space-4);
+  color: var(--color-text);
+}
+
+.form-error {
+  color: var(--color-error);
+}
+
+.footer-note {
+  padding: var(--space-8) 0 var(--space-4);
+  text-align: center;
+  color: var(--color-text-faint);
+  font-size: var(--text-sm);
+}
+
+@media (max-width: 800px) {
+  .topic-grid {
+    grid-template-columns: 1fr;
+  }
+}

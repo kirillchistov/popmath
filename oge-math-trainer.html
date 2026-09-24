@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Тренажёр ОГЭ по математике — MVP</title>
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=boska@500,700&display=swap" rel="stylesheet">
+  <style>
+    :root, [data-theme="light"] {
+      --font-display: 'Boska', Georgia, serif;
+      --font-body: 'Satoshi', 'Inter', sans-serif;
+      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.15rem);
+      --space-1: .25rem; --space-2: .5rem; --space-3: .75rem; --space-4: 1rem;
+      --space-5: 1.25rem; --space-6: 1.5rem; --space-8: 2rem; --space-10: 2.5rem;
+      --space-12: 3rem; --space-16: 4rem;
+      --radius-sm: .375rem; --radius-md: .6rem; --radius-lg: 1rem; --radius-full: 999px;
+      --color-bg: #f7f6f2;
+      --color-surface: #fdfcf9;
+      --color-surface-2: #f3f0ec;
+      --color-border: rgba(40,37,29,.12);
+      --color-text: #28251d;
+      --color-text-muted: #65625a;
+      --color-text-faint: #9f9b92;
+      --color-primary: #0d6b6f;
+      --color-primary-2: #d9eceb;
+      --color-success: #437a22;
+      --color-warning: #a05a16;
+      --color-error: #a12c7b;
+      --shadow-sm: 0 1px 2px rgba(31, 27, 20, 0.06), 0 8px 24px rgba(31, 27, 20, 0.04);
+      --shadow-md: 0 4px 12px rgba(31, 27, 20, 0.08), 0 16px 32px rgba(31, 27, 20, 0.06);
+      --theme-eq: #1f7a8c;
+      --theme-ineq: #8d5a00;
+      --theme-word: #9d3d54;
+      --theme-func: #4754b8;
+    }
+    [data-theme="dark"] {
+      --color-bg: #171614;
+      --color-surface: #1d1b19;
+      --color-surface-2: #252321;
+      --color-border: rgba(235,231,223,.12);
+      --color-text: #ece7df;
+      --color-text-muted: #b3aea6;
+      --color-text-faint: #7d786f;
+      --color-primary: #63a8af;
+      --color-primary-2: #253739;
+      --color-success: #83ba5f;
+      --color-warning: #f0b75d;
+      --color-error: #dc78b2;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2), 0 8px 24px rgba(0, 0, 0, 0.2);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3), 0 16px 32px rgba(0, 0, 0, 0.22);
+      --theme-eq: #76b9ca;
+      --theme-ineq: #f0c86f;
+      --theme-word: #e08ba1;
+      --theme-func: #93a2ff;
+    }
+    *,*::before,*::after{box-sizing:border-box}
+    html{-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
+    body{margin:0;font-family:var(--font-body);font-size:var(--text-base);line-height:1.55;background:var(--color-bg);color:var(--color-text)}
+    button,input{font:inherit}
+    button{cursor:pointer;border:none;background:none;color:inherit}
+    .app{max-width:1160px;margin:0 auto;padding:var(--space-4)}
+    .skip-link{position:absolute;left:-9999px;top:0}.skip-link:focus{left:var(--space-4);top:var(--space-4);background:var(--color-surface);padding:var(--space-2) var(--space-3);border-radius:var(--radius-sm);z-index:100}
+    .topbar{display:flex;justify-content:space-between;gap:var(--space-4);align-items:center;padding:var(--space-3) 0 var(--space-6);flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:var(--space-3)}
+    .brand-mark{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,var(--color-primary-2),transparent),var(--color-surface);display:grid;place-items:center;border:1px solid var(--color-border);box-shadow:var(--shadow-sm)}
+    .brand-mark svg{width:28px;height:28px}
+    .eyebrow{font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.08em;color:var(--color-text-muted)}
+    h1,h2,h3{margin:0;line-height:1.1}
+    h1{font-family:var(--font-display);font-size:var(--text-xl)}
+    h2{font-size:var(--text-lg)}
+    h3{font-size:1.05rem}
+    p{margin:0;color:var(--color-text-muted)}
+    .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:var(--space-6);align-items:stretch}
+    .panel{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm)}
+    .hero-card{padding:var(--space-6);display:flex;flex-direction:column;gap:var(--space-4);min-height:280px;position:relative;overflow:hidden}
+    .hero-card::after{content:'';position:absolute;inset:auto -40px -50px auto;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,var(--color-primary-2),transparent 70%);opacity:.8;pointer-events:none}
+    .hero-copy{max-width:52ch}
+    .hero-actions,.toolbar,.quiz-actions,.practice-actions,.review-actions{display:flex;gap:var(--space-3);flex-wrap:wrap}
+    .btn{min-height:46px;padding:0 var(--space-4);border-radius:var(--radius-full);border:1px solid var(--color-border);background:var(--color-surface-2);display:inline-flex;align-items:center;justify-content:center;gap:.55rem;box-shadow:var(--shadow-sm)}
+    .btn-primary{background:var(--color-primary);color:#fff;border-color:transparent}
+    .btn-ghost{background:transparent}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-3)}
+    .stat{padding:var(--space-4);background:var(--color-surface-2);border-radius:var(--radius-md);border:1px solid var(--color-border)}
+    .stat strong{display:block;font-size:1.35rem;color:var(--color-text)}
+    .layout{display:grid;grid-template-columns:320px 1fr;gap:var(--space-6);margin-top:var(--space-6)}
+    .sidebar,.content{display:flex;flex-direction:column;gap:var(--space-4)}
+    .section-card{padding:var(--space-5)}
+    .pill-row{display:flex;gap:var(--space-2);flex-wrap:wrap}
+    .pill{padding:.45rem .8rem;border-radius:var(--radius-full);background:var(--color-surface-2);border:1px solid var(--color-border);font-size:var(--text-xs);color:var(--color-text-muted)}
+    .mini-list{display:grid;gap:var(--space-3)}
+    .topic-card{padding:var(--space-4);border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-surface-2);display:grid;gap:var(--space-2)}
+    .topic-head{display:flex;justify-content:space-between;gap:var(--space-2);align-items:flex-start}
+    .topic-symbol{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-weight:700;color:#fff}
+    .theme-eq{background:var(--theme-eq)} .theme-ineq{background:var(--theme-ineq)} .theme-word{background:var(--theme-word)} .theme-func{background:var(--theme-func)}
+    .topic-card button{justify-self:start}
+    .screen{display:none}
+    .screen.active{display:block}
+    .quiz-grid{display:grid;gap:var(--space-4)}
+    .question-card{padding:var(--space-5)}
+    .question-head{display:flex;justify-content:space-between;gap:var(--space-4);align-items:flex-start;margin-bottom:var(--space-4)}
+    .badge{display:inline-flex;align-items:center;gap:.4rem;border-radius:var(--radius-full);padding:.35rem .75rem;background:var(--color-primary-2);color:var(--color-text);font-size:var(--text-xs);border:1px solid var(--color-border)}
+    .timer{font-variant-numeric:tabular-nums;font-weight:700;color:var(--color-text)}
+    .options{display:grid;gap:var(--space-3);margin-top:var(--space-4)}
+    .option{display:flex;gap:var(--space-3);align-items:flex-start;padding:var(--space-4);border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-surface-2)}
+    .option input{margin-top:.2rem}
+    .progress{height:10px;background:var(--color-surface-2);border-radius:999px;overflow:hidden;border:1px solid var(--color-border)}
+    .progress > span{display:block;height:100%;background:var(--color-primary);width:0;transition:width .25s ease}
+    .module-nav{display:flex;gap:var(--space-2);flex-wrap:wrap}
+    .module-tab{padding:.65rem .9rem;border-radius:var(--radius-full);border:1px solid var(--color-border);background:var(--color-surface-2)}
+    .module-tab.active{background:var(--color-primary);color:#fff;border-color:transparent}
+    .algorithm{display:grid;gap:var(--space-4);grid-template-columns:1fr 1fr}
+    .algo-card,.trap-card,.practice-card,.review-card{padding:var(--space-5)}
+    .steps{display:grid;gap:var(--space-3);counter-reset:step}
+    .step{display:grid;grid-template-columns:34px 1fr;gap:var(--space-3);align-items:flex-start}
+    .step::before{counter-increment:step;content:counter(step);width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--color-surface-2);border:1px solid var(--color-border);font-weight:700}
+    .practice-top{display:flex;justify-content:space-between;gap:var(--space-3);align-items:center;margin-bottom:var(--space-4);flex-wrap:wrap}
+    .input-answer{width:min(280px,100%);min-height:48px;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-surface-2);padding:0 var(--space-4);color:var(--color-text)}
+    .feedback{margin-top:var(--space-4);padding:var(--space-4);border-radius:var(--radius-md);display:none}
+    .feedback.show{display:block}
+    .feedback.ok{background:color-mix(in srgb, var(--color-success) 16%, var(--color-surface));border:1px solid color-mix(in srgb, var(--color-success) 35%, var(--color-border))}
+    .feedback.bad{background:color-mix(in srgb, var(--color-error) 14%, var(--color-surface));border:1px solid color-mix(in srgb, var(--color-error) 35%, var(--color-border))}
+    .review-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4)}
+    .memory-illustration{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3);margin-top:var(--space-4)}
+    .memory-box{padding:var(--space-4);border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-surface-2)}
+    .memory-box.good{outline:2px solid color-mix(in srgb, var(--color-success) 25%, transparent)}
+    .memory-box.bad{outline:2px solid color-mix(in srgb, var(--color-error) 22%, transparent)}
+    .footer-note{padding:var(--space-5);text-align:center;color:var(--color-text-muted)}
+    .hidden{display:none !important}
+    @media (max-width: 980px){.hero,.layout,.algorithm,.review-grid,.memory-illustration{grid-template-columns:1fr}.stats{grid-template-columns:1fr}.app{padding:var(--space-3)}.hero-card{min-height:auto}}
+  </style>
+</head>
+<body>
+  <a href="#main" class="skip-link">Перейти к содержимому</a>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" aria-label="Лого тренажёра">
+            <path d="M7 22L16 10l9 12" />
+            <path d="M11 22h10" />
+            <circle cx="16" cy="16" r="11" opacity=".25" />
+          </svg>
+        </div>
+        <div>
+          <div class="eyebrow">ОГЭ / математика / MVP</div>
+          <h1>Тренажёр «Быстрый ход»</h1>
+        </div>
+      </div>
+      <div class="toolbar">
+        <button class="btn" id="themeToggle" type="button" aria-label="Переключить тему">🌙 Тема</button>
+        <button class="btn btn-ghost" type="button" id="goQuizTop">Старт-квиз</button>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero">
+        <article class="panel hero-card">
+          <div class="eyebrow">Формат: коротко, наглядно, без перегруза</div>
+          <h2>Сначала — быстрый квиз на время, потом — 4 темы с алгоритмами, ловушками и тренировкой.</h2>
+          <p class="hero-copy">Один экран — одна задача. Сначала узнаём тип, потом вспоминаем схему, затем решаем и сразу разбираем ошибку через простую иллюстрацию «как надо / как не надо».</p>
+          <div class="hero-actions">
+            <button class="btn btn-primary" type="button" id="goQuiz">Начать квиз</button>
+            <button class="btn" type="button" id="goModules">Перейти к темам</button>
+          </div>
+        </article>
+        <aside class="panel hero-card">
+          <div class="stats">
+            <div class="stat"><span class="eyebrow">Квиз</span><strong>15</strong><p>по 1 задаче на ключевые типы ОГЭ</p></div>
+            <div class="stat"><span class="eyebrow">Темы</span><strong>4</strong><p>уравнения, неравенства, текстовые, функции</p></div>
+            <div class="stat"><span class="eyebrow">Режим</span><strong>1 экран</strong><p>минимум отвлекающих деталей</p></div>
+          </div>
+          <div class="pill-row">
+            <span class="pill">Весы = уравнения</span>
+            <span class="pill">Граница = неравенства</span>
+            <span class="pill">Переводчик = текстовые</span>
+            <span class="pill">Карта = функции</span>
+          </div>
+        </aside>
+      </section>
+
+      <section class="layout">
+        <aside class="sidebar">
+          <div class="panel section-card">
+            <div class="eyebrow">Маршрут</div>
+            <div class="mini-list" style="margin-top: var(--space-4)">
+              <button class="btn" type="button" data-open-screen="quiz">0. Короткий квиз</button>
+              <button class="btn" type="button" data-open-screen="modules">1. Темы и алгоритмы</button>
+              <button class="btn" type="button" data-open-screen="review">2. Ошибки и разбор</button>
+            </div>
+          </div>
+          <div class="panel section-card">
+            <div class="eyebrow">Темы MVP</div>
+            <div class="mini-list" style="margin-top: var(--space-4)">
+              <article class="topic-card">
+                <div class="topic-head"><div><h3>Уравнения</h3><p>Фраза: «Сохраняй равновесие»</p></div><div class="topic-symbol theme-eq">=</div></div>
+              </article>
+              <article class="topic-card">
+                <div class="topic-head"><div><h3>Неравенства</h3><p>Фраза: «Следи за границей»</p></div><div class="topic-symbol theme-ineq">&lt;</div></div>
+              </article>
+              <article class="topic-card">
+                <div class="topic-head"><div><h3>Текстовые</h3><p>Фраза: «Переведи на язык чисел»</p></div><div class="topic-symbol theme-word">T</div></div>
+              </article>
+              <article class="topic-card">
+                <div class="topic-head"><div><h3>Функции</h3><p>Фраза: «Читай график как карту»</p></div><div class="topic-symbol theme-func">f</div></div>
+              </article>
+            </div>
+          </div>
+        </aside>
+
+        <section class="content">
+          <section class="screen active" id="screen-home">
+            <article class="panel section-card">
+              <div class="eyebrow">Что внутри MVP</div>
+              <h2 style="margin-top: var(--space-2);">15 коротких стартовых вопросов + 4 учебных модуля</h2>
+              <p style="margin-top: var(--space-3);">Квиз охватывает задания 1–19 в сжатом формате по одному вопросу на тип. Затем можно перейти в тему и потренироваться глубже: алгоритм, 5–7 заданий, ловушки и мини-режим на время.</p>
+              <div class="pill-row" style="margin-top: var(--space-4);">
+                <span class="pill">Задания 1–5: практические ситуации</span>
+                <span class="pill">6–10: числа, неравенства, выражения, уравнения, вероятность</span>
+                <span class="pill">11–14: графики, формулы, прогрессии</span>
+                <span class="pill">15–19: геометрия</span>
+              </div>
+            </article>
+          </section>
+
+          <section class="screen" id="screen-quiz">
+            <article class="panel question-card">
+              <div class="question-head">
+                <div>
+                  <div class="eyebrow">Стартовый квиз</div>
+                  <h2 id="quizTitle">Поймай тип задачи</h2>
+                </div>
+                <div class="badge"><span id="quizCounter">1 / 15</span><span class="timer" id="quizTimer">00:25</span></div>
+              </div>
+              <div class="progress" aria-hidden="true"><span id="quizProgress"></span></div>
+              <div class="quiz-grid" style="margin-top: var(--space-4);">
+                <div>
+                  <div class="pill-row"><span class="pill" id="quizTopic"></span><span class="pill" id="quizHint"></span></div>
+                  <p id="quizQuestion" style="margin-top: var(--space-4);"></p>
+                </div>
+                <form id="quizForm" class="options"></form>
+              </div>
+              <div class="quiz-actions" style="margin-top: var(--space-5);">
+                <button class="btn btn-primary" type="button" id="quizNext">Ответить</button>
+                <button class="btn" type="button" id="quizSkip">Пропустить</button>
+              </div>
+              <div id="quizFeedback" class="feedback"></div>
+            </article>
+          </section>
+
+          <section class="screen" id="screen-modules">
+            <article class="panel section-card">
+              <div class="question-head" style="margin-bottom: var(--space-5);">
+                <div>
+                  <div class="eyebrow">Тематические блоки</div>
+                  <h2 id="moduleTitle">Уравнения</h2>
+                </div>
+                <div class="module-nav" id="moduleNav"></div>
+              </div>
+              <div class="algorithm">
+                <section class="panel algo-card">
+                  <div class="eyebrow">Карточка-алгоритм</div>
+                  <h3 id="algoPhrase" style="margin-top: var(--space-2);"></h3>
+                  <p id="algoMetaphor" style="margin-top: var(--space-2);"></p>
+                  <div class="steps" id="algoSteps" style="margin-top: var(--space-4);"></div>
+                </section>
+                <section class="panel trap-card">
+                  <div class="eyebrow">Ловушки</div>
+                  <h3 style="margin-top: var(--space-2);">Где чаще всего срывается решение</h3>
+                  <div class="mini-list" id="trapList" style="margin-top: var(--space-4);"></div>
+                </section>
+              </div>
+            </article>
+
+            <article class="panel practice-card">
+              <div class="practice-top">
+                <div>
+                  <div class="eyebrow">Мини-режим на время</div>
+                  <h3 id="practiceLabel">Задание 1 из 6</h3>
+                </div>
+                <div class="badge"><span id="practiceTopicBadge">Уравнения</span><span class="timer" id="practiceTimer">00:45</span></div>
+              </div>
+              <p id="practiceQuestion"></p>
+              <div style="margin-top: var(--space-4);display:grid;gap:var(--space-3);max-width:420px;">
+                <label for="practiceAnswer" class="eyebrow" style="color: var(--color-text-muted);">Твой ответ</label>
+                <input id="practiceAnswer" class="input-answer" autocomplete="off" placeholder="Например: 4 или x = 4" />
+              </div>
+              <div class="practice-actions" style="margin-top: var(--space-4);">
+                <button class="btn btn-primary" type="button" id="checkPractice">Проверить</button>
+                <button class="btn" type="button" id="nextPractice">Следующее</button>
+              </div>
+              <div id="practiceFeedback" class="feedback"></div>
+            </article>
+          </section>
+
+          <section class="screen" id="screen-review">
+            <article class="panel review-card">
+              <div class="eyebrow">Разбор ошибок</div>
+              <h2 style="margin-top: var(--space-2);">Как надо / как не надо</h2>
+              <p style="margin-top: var(--space-3);">После квиза и тематических блоков сюда попадают ошибки. Ниже показывается короткое объяснение, правильный ход и наглядная анти-ошибка.</p>
+              <div class="review-grid" id="reviewGrid" style="margin-top: var(--space-4);"></div>
+              <div class="review-actions" style="margin-top: var(--space-5);">
+                <button class="btn" type="button" id="refreshReview">Обновить разбор</button>
+                <button class="btn btn-primary" type="button" data-open-screen="modules">Вернуться к темам</button>
+              </div>
+            </article>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <footer class="footer-note">MVP: можно расширить банком задач, адаптивной сложностью, сохранением прогресса и отдельным геометрическим режимом.</footer>
+  </div>
+
+  <script>
+    const state = {
+      theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
+      quizIndex: 0,
+      quizScore: 0,
+      quizTimerValue: 25,
+      quizInterval: null,
+      quizAnswers: [],
+      activeModule: 'equations',
+      practiceIndex: 0,
+      practiceTimerValue: 45,
+      practiceInterval: null,
+      mistakes: []
+    };
+
+    const quizData = [
+      {topic:'1–5 Практика', hint:'Шины / тарифы / печи', q:'Авто проезжает 420 км. Расход 7 л на 100 км, бензин стоит 54 руб/л. Сколько рублей нужно на бензин?', options:['1134','1323','1587','980'], answer:'1587', explain:'420 км — это 4,2 отрезка по 100 км. Значит, топлива нужно 7 × 4,2 = 29,4 л, а стоимость 29,4 × 54 = 1587,6 руб. В задачах ОГЭ обычно выбирается ближайшее целое или округление по условию — здесь 1587 как вариант ответа.'},
+      {topic:'6 Дроби', hint:'Обыкновенные и десятичные', q:'Вычисли: 1,2 + 3/5', options:['1,8','1,6','1,7','1,4'], answer:'1,8', explain:'Переводи в один язык: 3/5 = 0,6. Тогда 1,2 + 0,6 = 1,8.'},
+      {topic:'7 Неравенства', hint:'Координатная прямая', q:'Какое из чисел больше: -3,2; -3,08; -3,25; -3,19?', options:['-3,25','-3,19','-3,08','-3,2'], answer:'-3,08', explain:'Среди отрицательных больше то число, которое ближе к нулю. Ближе всех к нулю -3,08.'},
+      {topic:'8 Выражения', hint:'Степени и корни', q:'Упрости: √81 + 2² · 3', options:['17','21','19','15'], answer:'21', explain:'Сначала корень и степень: √81 = 9, 2² = 4. Затем умножение: 4 · 3 = 12. И наконец 9 + 12 = 21.'},
+      {topic:'9 Уравнения', hint:'Линейные / квадратные', q:'Реши уравнение: 3x - 7 = 11', options:['6','4','3','5'], answer:'6', explain:'Перенеси 7 вправо: 3x = 18. Раздели на 3: x = 6.'},
+      {topic:'10 Вероятность', hint:'Случайный выбор', q:'В коробке 3 красных и 7 синих шаров. Какова вероятность вытащить красный шар?', options:['0,7','0,3','3/7','1/10'], answer:'0,3', explain:'Благоприятных исходов 3, всего 10. Вероятность 3/10 = 0,3.'},
+      {topic:'11 Графики', hint:'Функции', q:'Какая функция задаёт прямую?', options:['y = x²','y = 3x - 2','y = 1/x','y = x² + 1'], answer:'y = 3x - 2', explain:'Прямая получается у линейной функции вида y = kx + b.'},
+      {topic:'12 Формулы', hint:'Подстановка', q:'По формуле s = vt найди s, если v = 12 м/с, t = 5 с.', options:['60','17','48','7'], answer:'60', explain:'Подставь значения прямо в формулу: s = 12 · 5 = 60.'},
+      {topic:'13 Неравенства', hint:'Линейное неравенство', q:'Реши: 2x + 1 > 7', options:['x > 3','x < 3','x > 4','x < 4'], answer:'x > 3', explain:'2x > 6, значит x > 3.'},
+      {topic:'14 Прогрессии', hint:'Арифметическая', q:'В арифметической прогрессии 4, 7, 10, ... чему равен 6-й член?', options:['16','18','19','20'], answer:'19', explain:'Разность d = 3. a6 = 4 + 5·3 = 19.'},
+      {topic:'15 Геометрия', hint:'Углы', q:'Сумма смежных углов равна...', options:['90°','180°','270°','360°'], answer:'180°', explain:'Смежные углы образуют развёрнутый угол, то есть 180°.'},
+      {topic:'16 Геометрия', hint:'Треугольники', q:'Сумма углов треугольника равна...', options:['90°','120°','180°','360°'], answer:'180°', explain:'Это базовое свойство любого треугольника.'},
+      {topic:'17 Геометрия', hint:'Четырёхугольники', q:'Как называется четырёхугольник, у которого все углы прямые и все стороны равны?', options:['ромб','прямоугольник','квадрат','трапеция'], answer:'квадрат', explain:'Квадрат одновременно и прямоугольник, и ромб.'},
+      {topic:'18 Геометрия', hint:'Окружность и площадь', q:'Площадь квадрата со стороной 5 равна...', options:['10','20','25','30'], answer:'25', explain:'Площадь квадрата равна a², значит 5² = 25.'},
+      {topic:'19 Геометрия', hint:'Клетчатая бумага', q:'Прямоугольник на клетчатой бумаге имеет стороны 3 и 4 клетки. Чему равна площадь?', options:['7','12','14','24'], answer:'12', explain:'Площадь прямоугольника — произведение сторон: 3 · 4 = 12.'}
+    ];
+
+    const modules = {
+      equations: {
+        title:'Уравнения', badge:'Уравнения', phrase:'Фраза-опора: «Сохраняй равновесие»', metaphor:'Образ: весы. Что делаешь слева, то делаешь и справа.',
+        steps:['Упростить обе части, если можно.','Перенести известные и неизвестные по разным сторонам.','Привести подобные слагаемые.','Разделить на коэффициент перед x.','Подставить ответ и быстро проверить.'],
+        traps:['Забыл сменить знак при переносе.','Потерял коэффициент перед x.','Поспешил и не раскрыл скобки.'],
+        tasks:[
+          {q:'Реши: 5x + 8 = 28', a:'4', ok:'5x = 20, значит x = 4.', bad:'Ошибка часто в том, что 28 - 8 считают как 18.', reviewTitle:'Не перепутай вычитание'},
+          {q:'Реши: 2(x + 3) = 14', a:'4', ok:'2x + 6 = 14, 2x = 8, x = 4.', bad:'Нельзя делить 14 на 2 и забывать про +3.', reviewTitle:'Сначала раскрой скобки'},
+          {q:'Реши: x/3 = 7', a:'21', ok:'Чтобы убрать деление на 3, умножь обе части на 3.', bad:'Ошибка — прибавить 3 вместо умножения.', reviewTitle:'Убирай деление правильно'},
+          {q:'Реши: x² - 9 = 0', a:'3;-3', ok:'x² = 9, значит x = 3 или x = -3.', bad:'Ошибка — записать только один корень.', reviewTitle:'У квадрата часто два корня'},
+          {q:'Реши: 4x - 3 = 2x + 7', a:'5', ok:'Переносим 2x влево, -3 вправо: 2x = 10.', bad:'Ошибка — переносить без смены знака.', reviewTitle:'При переносе меняй знак'},
+          {q:'Реши: 6/(x) = 2', a:'3', ok:'Умножь обе части на x: 6 = 2x, x = 3.', bad:'Нельзя делить 6 на 2 и терять x без объяснения.', reviewTitle:'Рациональные — держи знаменатель под контролем'}
+        ]
+      },
+      inequalities: {
+        title:'Неравенства', badge:'Неравенства', phrase:'Фраза-опора: «Следи за границей»', metaphor:'Образ: линия-граница. Тебе важно понять, где точка стоит относительно порога.',
+        steps:['Упрости выражение.','Перенеси всё с x в одну сторону.','Раздели на коэффициент.','Если делишь или умножаешь на отрицательное число — переверни знак.','Проверь ответ на числовой прямой.'],
+        traps:['Забыл перевернуть знак при делении на отрицательное число.','Путаешь строгий и нестрогий знак.','Не проверяешь ответ на прямой.'],
+        tasks:[
+          {q:'Реши: x + 5 > 9', a:'4', ok:'x > 4.', bad:'Ошибка — написать x < 4 по привычке.', reviewTitle:'Смотри в сторону знака'},
+          {q:'Реши: -2x < 8', a:'-4', ok:'При делении на -2 знак меняется: x > -4.', bad:'Самая частая ошибка — забыть переворот знака.', reviewTitle:'Отрицательное число переворачивает знак'},
+          {q:'Что больше: -1,7 или -1,09?', a:'-1,09', ok:'Ближе к нулю — больше.', bad:'Ошибка — сравнивать как положительные.', reviewTitle:'Отрицательные читаются наоборот'},
+          {q:'Реши: 3x - 6 ≥ 0', a:'2', ok:'3x ≥ 6, значит x ≥ 2.', bad:'Ошибка — потерять равенство.', reviewTitle:'Не теряй черту «или равно»'},
+          {q:'Реши систему: x > 2 и x < 5', a:'(2;5)', ok:'Берём пересечение: между 2 и 5.', bad:'Ошибка — объединить вместо пересечения.', reviewTitle:'В системе ищем общую часть'},
+          {q:'Реши: x² - 4 > 0', a:'x<-2 или x>2', ok:'x² > 4, значит за пределами отрезка [-2;2].', bad:'Ошибка — оставить только x > 2.', reviewTitle:'Квадратные неравенства часто дают два луча'}
+        ]
+      },
+      word: {
+        title:'Текстовые задачи', badge:'Текстовые', phrase:'Фраза-опора: «Переведи на язык чисел»', metaphor:'Образ: переводчик. Сначала превращаем слова в схему, только потом считаем.',
+        steps:['Выдели, что известно и что надо найти.','Назови величины буквами или короткой схемой.','Составь выражение, уравнение или пропорцию.','Реши спокойно без лишних слов.','Сверь ответ с реальным смыслом задачи.'],
+        traps:['Сразу считать без схемы.','Путать цену, количество и стоимость.','Получить ответ, который не подходит по смыслу.'],
+        tasks:[
+          {q:'Тетрадь стоит 24 руб. Сколько стоят 3 тетради?', a:'72', ok:'Цена × количество = стоимость.', bad:'Ошибка — складывать 24 + 3.', reviewTitle:'Цена и количество нужно умножать'},
+          {q:'Поезд шёл 3 часа со скоростью 70 км/ч. Какой путь прошёл поезд?', a:'210', ok:'Путь = скорость × время.', bad:'Ошибка — сложить 70 и 3.', reviewTitle:'Сначала формула, потом вычисление'},
+          {q:'В классе 12 девочек и 8 мальчиков. Сколько процентов класса составляют девочки?', a:'60', ok:'Всего 20, доля девочек 12/20 = 0,6 = 60%.', bad:'Ошибка — делить 12 на 8.', reviewTitle:'Проценты считаются от общего'},
+          {q:'Товар подорожал на 20% и стал стоить 240 руб. Какова была исходная цена?', a:'200', ok:'240 — это 120% исходной цены. Значит, 240 / 1,2 = 200.', bad:'Ошибка — вычесть 20 из 240.', reviewTitle:'Проценты — это не просто вычитание числа'},
+          {q:'На плане 1 см соответствует 5 м. Чему соответствует отрезок 7 см?', a:'35', ok:'7 × 5 = 35 м.', bad:'Ошибка — делить вместо умножения.', reviewTitle:'Масштаб сначала переведи в действие'},
+          {q:'Для печи нужно 18 кирпичей на ряд. Сколько кирпичей нужно на 6 рядов?', a:'108', ok:'18 × 6 = 108.', bad:'Ошибка — прибавить 18 и 6.', reviewTitle:'Повторяющиеся ряды — это умножение'}
+        ]
+      },
+      functions: {
+        title:'Функции и координаты', badge:'Функции', phrase:'Фраза-опора: «Читай график как карту»', metaphor:'Образ: карта координат. По виду линии можно быстро понять характер функции.',
+        steps:['Определи тип графика: прямая, парабола, гипербола.','Посмотри, где график растёт, убывает, пересекает оси.','Если дана формула — подставь 1–2 точки для проверки.','Считай по осям внимательно, без спешки.','Свяжи рисунок с вопросом: значение, знак, вершина, пересечение.'],
+        traps:['Путать ось x и ось y.','Читать по рисунку «на глаз» без опоры на клетки.','Путать прямую и параболу по формуле.'],
+        tasks:[
+          {q:'Какая из функций линейная: y = x², y = 2x + 1, y = 3/x?', a:'y = 2x + 1', ok:'Линейная функция имеет вид y = kx + b.', bad:'Ошибка — выбирать любую формулу с x.', reviewTitle:'Линейная = только первая степень x'},
+          {q:'Для функции y = 2x + 3 найди y при x = 4.', a:'11', ok:'2 · 4 + 3 = 11.', bad:'Ошибка — умножить 2 и 3, а потом прибавить x.', reviewTitle:'Подставляй значение прямо в формулу'},
+          {q:'Как выглядит график y = x²?', a:'парабола', ok:'Квадрат даёт параболу.', bad:'Ошибка — назвать прямой.', reviewTitle:'Степень 2 сразу намекает на параболу'},
+          {q:'Точка (2; 5) принадлежит ли графику y = x + 3?', a:'да', ok:'Если x = 2, то y = 5. Значит, принадлежит.', bad:'Ошибка — подставить наоборот: y в x.', reviewTitle:'Сначала x, потом считаем y'},
+          {q:'Какой график у функции y = 1/x?', a:'гипербола', ok:'Это классическая гипербола.', bad:'Ошибка — путать с параболой из-за «красивого» вида.', reviewTitle:'Если x в знаменателе — думай про гиперболу'},
+          {q:'Если на графике прямая идёт вверх слева направо, функция...', a:'возрастает', ok:'Чем больше x, тем больше y.', bad:'Ошибка — перепутать направление чтения.', reviewTitle:'Всегда смотри слева направо'}
+        ]
+      }
+    };
+
+    const screens = {
+      home: document.getElementById('screen-home'),
+      quiz: document.getElementById('screen-quiz'),
+      modules: document.getElementById('screen-modules'),
+      review: document.getElementById('screen-review')
+    };
+
+    function setTheme(theme){
+      state.theme = theme;
+      document.documentElement.setAttribute('data-theme', theme);
+      document.getElementById('themeToggle').textContent = theme === 'dark' ? '☀️ Тема' : '🌙 Тема';
+    }
+    setTheme(state.theme);
+
+    function showScreen(name){
+      Object.values(screens).forEach(el => el.classList.remove('active'));
+      screens[name].classList.add('active');
+      if(name === 'quiz') startQuiz();
+      if(name === 'modules') loadModule(state.activeModule);
+      if(name === 'review') renderReview();
+    }
+
+    document.getElementById('themeToggle').addEventListener('click', ()=>setTheme(state.theme === 'dark' ? 'light' : 'dark'));
+    document.getElementById('goQuiz').addEventListener('click', ()=>showScreen('quiz'));
+    document.getElementById('goQuizTop').addEventListener('click', ()=>showScreen('quiz'));
+    document.getElementById('goModules').addEventListener('click', ()=>showScreen('modules'));
+    document.querySelectorAll('[data-open-screen]').forEach(btn => btn.addEventListener('click', ()=>showScreen(btn.dataset.openScreen)));
+
+    function startQuiz(){
+      clearInterval(state.quizInterval);
+      state.quizIndex = 0;
+      state.quizScore = 0;
+      state.quizAnswers = [];
+      renderQuizQuestion();
+    }
+
+    function renderQuizQuestion(){
+      clearInterval(state.quizInterval);
+      const q = quizData[state.quizIndex];
+      if(!q){
+        document.getElementById('quizTitle').textContent = 'Квиз завершён';
+        document.getElementById('quizQuestion').textContent = `Результат: ${state.quizScore} из ${quizData.length}. Теперь переходи к темам и разбору ошибок.`;
+        document.getElementById('quizForm').innerHTML = '';
+        document.getElementById('quizCounter').textContent = `${quizData.length} / ${quizData.length}`;
+        document.getElementById('quizHint').textContent = 'Готово';
+        document.getElementById('quizTopic').textContent = 'Результат';
+        document.getElementById('quizProgress').style.width = '100%';
+        document.getElementById('quizFeedback').className = 'feedback show ok';
+        document.getElementById('quizFeedback').innerHTML = 'Квиз завершён. Открой блок «Разбор ошибок», чтобы увидеть, где было слабое место.';
+        document.getElementById('quizNext').textContent = 'К темам';
+        document.getElementById('quizNext').onclick = ()=>showScreen('modules');
+        return;
+      }
+      document.getElementById('quizNext').textContent = 'Ответить';
+      document.getElementById('quizNext').onclick = handleQuizAnswer;
+      document.getElementById('quizFeedback').className = 'feedback';
+      document.getElementById('quizFeedback').textContent = '';
+      document.getElementById('quizCounter').textContent = `${state.quizIndex + 1} / ${quizData.length}`;
+      document.getElementById('quizTopic').textContent = q.topic;
+      document.getElementById('quizHint').textContent = q.hint;
+      document.getElementById('quizQuestion').textContent = q.q;
+      document.getElementById('quizProgress').style.width = `${(state.quizIndex / quizData.length) * 100}%`;
+      const form = document.getElementById('quizForm');
+      form.innerHTML = q.options.map((opt, i) => `<label class="option"><input type="radio" name="quizOpt" value="${opt.replaceAll('"','&quot;')}"><span><strong>${String.fromCharCode(1040+i)}.</strong> ${opt}</span></label>`).join('');
+      state.quizTimerValue = 25;
+      document.getElementById('quizTimer').textContent = formatTime(state.quizTimerValue);
+      state.quizInterval = setInterval(()=>{
+        state.quizTimerValue -= 1;
+        document.getElementById('quizTimer').textContent = formatTime(state.quizTimerValue);
+        if(state.quizTimerValue <= 0){
+          clearInterval(state.quizInterval);
+          handleQuizAnswer(true);
+        }
+      },1000);
+    }
+
+    function handleQuizAnswer(timeout=false){
+      const q = quizData[state.quizIndex];
+      clearInterval(state.quizInterval);
+      const selected = document.querySelector('input[name="quizOpt"]:checked')?.value || '';
+      const correct = selected === q.answer;
+      const feedback = document.getElementById('quizFeedback');
+      const text = timeout ? 'Время вышло.' : correct ? 'Верно.' : 'Почти.';
+      feedback.className = `feedback show ${correct ? 'ok' : 'bad'}`;
+      feedback.innerHTML = `<strong>${text}</strong> Правильный ответ: ${q.answer}. ${q.explain}`;
+      state.quizAnswers.push({question:q.q, selected:selected || '—', answer:q.answer, explain:q.explain, topic:q.topic});
+      if(correct) state.quizScore += 1;
+      if(!correct) state.mistakes.push({title:q.topic, wrong:selected || 'Нет ответа', right:q.answer, explain:q.explain, bad:'Ответ выбран без опоры на алгоритм или время закончилось.', good:'Сначала пойми тип задачи, затем выполни одно ключевое действие.'});
+      state.quizIndex += 1;
+      setTimeout(renderQuizQuestion, 1400);
+    }
+
+    document.getElementById('quizSkip').addEventListener('click', ()=>handleQuizAnswer(true));
+
+    function buildModuleTabs(){
+      const nav = document.getElementById('moduleNav');
+      nav.innerHTML = Object.entries(modules).map(([key, mod]) => `<button class="module-tab ${key===state.activeModule?'active':''}" data-module="${key}" type="button">${mod.title}</button>`).join('');
+      nav.querySelectorAll('[data-module]').forEach(btn => btn.addEventListener('click', ()=>{
+        state.activeModule = btn.dataset.module;
+        state.practiceIndex = 0;
+        loadModule(state.activeModule);
+      }));
+    }
+
+    function loadModule(key){
+      clearInterval(state.practiceInterval);
+      buildModuleTabs();
+      const mod = modules[key];
+      document.getElementById('moduleTitle').textContent = mod.title;
+      document.getElementById('algoPhrase').textContent = mod.phrase;
+      document.getElementById('algoMetaphor').textContent = mod.metaphor;
+      document.getElementById('algoSteps').innerHTML = mod.steps.map(step => `<div class="step"><div>${step}</div></div>`).join('');
+      document.getElementById('trapList').innerHTML = mod.traps.map(item => `<div class="topic-card"><strong>${item}</strong><p>Поймай это место глазами до того, как начал считать.</p></div>`).join('');
+      document.getElementById('practiceTopicBadge').textContent = mod.badge;
+      renderPracticeTask();
+    }
+
+    function renderPracticeTask(){
+      clearInterval(state.practiceInterval);
+      const mod = modules[state.activeModule];
+      const task = mod.tasks[state.practiceIndex] || mod.tasks[0];
+      document.getElementById('practiceLabel').textContent = `Задание ${state.practiceIndex + 1} из ${mod.tasks.length}`;
+      document.getElementById('practiceQuestion').textContent = task.q;
+      document.getElementById('practiceAnswer').value = '';
+      document.getElementById('practiceFeedback').className = 'feedback';
+      document.getElementById('practiceFeedback').textContent = '';
+      state.practiceTimerValue = 45;
+      document.getElementById('practiceTimer').textContent = formatTime(state.practiceTimerValue);
+      state.practiceInterval = setInterval(()=>{
+        state.practiceTimerValue -= 1;
+        document.getElementById('practiceTimer').textContent = formatTime(state.practiceTimerValue);
+        if(state.practiceTimerValue <= 0){
+          clearInterval(state.practiceInterval);
+          checkPractice(true);
+        }
+      },1000);
+    }
+
+    function normalizeAnswer(value){
+      return value.toString().trim().toLowerCase().replace(/\s+/g,'').replace(',', '.');
+    }
+
+    function checkPractice(timeout=false){
+      const mod = modules[state.activeModule];
+      const task = mod.tasks[state.practiceIndex];
+      const user = document.getElementById('practiceAnswer').value;
+      const ok = normalizeAnswer(user) === normalizeAnswer(task.a);
+      const box = document.getElementById('practiceFeedback');
+      box.className = `feedback show ${ok ? 'ok' : 'bad'}`;
+      box.innerHTML = `<strong>${timeout ? 'Время вышло.' : ok ? 'Отлично.' : 'Есть ошибка.'}</strong> ${task.ok}<br><span style="color:var(--color-text-muted)">Ловушка: ${task.bad}</span>`;
+      if(!ok){
+        state.mistakes.push({title:`${mod.title}: ${task.reviewTitle}`, wrong:user || 'Нет ответа', right:task.a, explain:task.ok, bad:task.bad, good:task.ok});
+      }
+    }
+
+    document.getElementById('checkPractice').addEventListener('click', ()=>checkPractice(false));
+    document.getElementById('nextPractice').addEventListener('click', ()=>{
+      const mod = modules[state.activeModule];
+      state.practiceIndex = (state.practiceIndex + 1) % mod.tasks.length;
+      renderPracticeTask();
+    });
+
+    function renderReview(){
+      const root = document.getElementById('reviewGrid');
+      if(state.mistakes.length === 0){
+        root.innerHTML = `<div class="topic-card"><h3>Пока без ошибок</h3><p>После квиза или мини-тренировок здесь появятся разборы с наглядной памятью.</p></div>`;
+        return;
+      }
+      root.innerHTML = state.mistakes.slice(-6).reverse().map(item => `
+        <article class="panel section-card">
+          <div class="eyebrow">${item.title}</div>
+          <p style="margin-top: var(--space-3);"><strong>Твой ответ:</strong> ${item.wrong}</p>
+          <p style="margin-top: var(--space-2);"><strong>Правильный:</strong> ${item.right}</p>
+          <p style="margin-top: var(--space-2);">${item.explain}</p>
+          <div class="memory-illustration">
+            <div class="memory-box bad"><div class="eyebrow">Как не надо</div><p style="margin-top: var(--space-2);">${item.bad}</p></div>
+            <div class="memory-box good"><div class="eyebrow">Как надо</div><p style="margin-top: var(--space-2);">${item.good}</p></div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    document.getElementById('refreshReview').addEventListener('click', renderReview);
+
+    function formatTime(total){
+      const mm = String(Math.max(0, Math.floor(total / 60))).padStart(2, '0');
+      const ss = String(Math.max(0, total % 60)).padStart(2, '0');
+      return `${mm}:${ss}`;
+    }
+
+    buildModuleTabs();
+    loadModule(state.activeModule);
+  </script>
+</body>
+</html>
