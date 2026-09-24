@@ -1,10 +1,16 @@
 import { listStudentUsernames } from './auth';
 import { getAllTopics } from './content';
+import { getLiveTask } from './live-content';
 import { buildQueue, pickTodayItem, todayISO } from './plan';
 import { getPlanOverride } from './plan-store';
 import { buildTopicProgress, quizTotal, uniqueQuizCount } from './progress';
 import { listAttempts } from './store';
-import type { QueueItem, TopicProgress } from './types';
+import type { QueueItem, Task, TopicProgress } from './types';
+
+export interface AssignedTaskView {
+  task: Task;
+  topic_title: string;
+}
 
 export interface StudentPlanView {
   student_id: string;
@@ -17,6 +23,8 @@ export interface StudentPlanView {
   order: string[];
   opened_new_topic_on: string | null;
   newTopicBlocked: boolean;
+  assigned_task_ids: string[];
+  assigned_tasks: AssignedTaskView[];
 }
 
 export async function getStudentPlan(
@@ -44,6 +52,19 @@ export async function getStudentPlan(
     focusState === 'untouched' &&
     override.opened_new_topic_on === today &&
     todayItem?.topic_id !== focus?.topic_id;
+  const solved = new Set(
+    attempts.filter((item) => item.correct).map((item) => item.task_id),
+  );
+  const assignedViews: AssignedTaskView[] = [];
+  for (const taskId of override.assigned_task_ids) {
+    if (solved.has(taskId)) continue;
+    const found = await getLiveTask(taskId);
+    if (!found) continue;
+    assignedViews.push({
+      task: found.task,
+      topic_title: found.topic.title,
+    });
+  }
 
   return {
     student_id: studentId,
@@ -56,6 +77,8 @@ export async function getStudentPlan(
     order: override.order,
     opened_new_topic_on: override.opened_new_topic_on,
     newTopicBlocked,
+    assigned_task_ids: override.assigned_task_ids,
+    assigned_tasks: assignedViews,
   };
 }
 

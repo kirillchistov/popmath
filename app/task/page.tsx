@@ -1,11 +1,13 @@
 import { AppShell } from '@/components/AppShell';
 import { TopicList } from '@/components/TopicList';
-import { getAllTopics } from '@/lib/content';
+import { getLiveTopicsMeta } from '@/lib/live-content';
 import { requireSession } from '@/lib/session';
+
+export const runtime = 'nodejs';
 
 export default async function TaskPage() {
   const session = await requireSession();
-  const topics = getAllTopics();
+  const topics = await getLiveTopicsMeta();
 
   return (
     <AppShell session={session} currentPath="/task">

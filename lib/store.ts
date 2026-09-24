@@ -51,14 +51,17 @@ export async function getAttempt(id: string): Promise<Attempt | undefined> {
 export async function updateAttemptTag(
   id: string,
   selfTag: ErrorCode,
+  options: { replaceCodes?: boolean } = {},
 ): Promise<Attempt | undefined> {
   const attempts = await readAll();
   const index = attempts.findIndex((item) => item.id === id);
   if (index === -1) return undefined;
   const current = attempts[index];
-  const errorCodes = current.error_codes.includes(selfTag)
-    ? current.error_codes
-    : [...current.error_codes, selfTag];
+  const errorCodes = options.replaceCodes
+    ? [selfTag]
+    : current.error_codes.includes(selfTag)
+      ? current.error_codes
+      : [...current.error_codes, selfTag];
   const updated: Attempt = {
     ...current,
     self_tag: selfTag,

@@ -1,12 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { getAllTopics } from '@/lib/content';
 import { STATE_LABEL } from '@/lib/progress';
 import type { StudentPlanView } from '@/lib/student-plan';
+import type { TopicMeta } from '@/lib/types';
 
-export function QueueEditor({ plans }: { plans: StudentPlanView[] }) {
-  const topics = getAllTopics();
+export function QueueEditor({
+  plans,
+  topics,
+}: {
+  plans: StudentPlanView[];
+  topics: TopicMeta[];
+}) {
   const title = (id: string) => topics.find((topic) => topic.id === id)?.title ?? id;
   const [items, setItems] = useState(plans);
   const [saving, setSaving] = useState<string | null>(null);

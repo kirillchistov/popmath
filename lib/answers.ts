@@ -6,7 +6,8 @@ export function normalizeAnswer(value: string): string {
     .replace(/\s+/g, '')
     .replace(/,/g, '.')
     .replace(/[−–—]/g, '-')
-    .replace(/°/g, '');
+    .replace(/°/g, '')
+    .replace(/ё/g, 'е');
 }
 
 function parts(value: string): string[] {

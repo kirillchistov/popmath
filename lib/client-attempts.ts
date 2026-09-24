@@ -22,11 +22,15 @@ export async function postAttempt(input: {
   return data.attempt;
 }
 
-export async function tagAttempt(id: string, selfTag: ErrorCode): Promise<void> {
+export async function tagAttempt(
+  id: string,
+  selfTag: ErrorCode,
+  asTutor = false,
+): Promise<void> {
   const response = await fetch(`/api/attempts/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ self_tag: selfTag }),
+    body: JSON.stringify(asTutor ? { error_code: selfTag } : { self_tag: selfTag }),
   });
   if (!response.ok) {
     throw new Error('Не удалось сохранить тег');

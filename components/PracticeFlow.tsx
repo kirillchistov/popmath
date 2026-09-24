@@ -12,12 +12,22 @@ import { SelfTag } from './SelfTag';
 import { TimerModeSwitch } from './TimerModeSwitch';
 import type { Attempt, TimerMode, Topic } from '@/lib/types';
 
-export function PracticeFlow({ topic }: { topic: Topic }) {
+export function PracticeFlow({
+  topic,
+  onlyTaskId,
+}: {
+  topic: Topic;
+  onlyTaskId?: string;
+}) {
+  const tasks = onlyTaskId
+    ? topic.tasks.filter((item) => item.id === onlyTaskId)
+    : topic.tasks;
+  const work = { ...topic, tasks: tasks.length > 0 ? tasks : topic.tasks };
   const router = useRouter();
   const [index, setIndex] = useState(0);
   const [answer, setAnswer] = useState('');
   const [mode, setMode] = useState<TimerMode>('off');
-  const [seconds, setSeconds] = useState(topic.tasks[0]?.time_sec ?? 45);
+  const [seconds, setSeconds] = useState(work.tasks[0]?.time_sec ?? 45);
   const [startedAt, setStartedAt] = useState(() => Date.now());
   const [current, setCurrent] = useState<Attempt | null>(null);
   const [busy, setBusy] = useState(false);
@@ -25,10 +35,10 @@ export function PracticeFlow({ topic }: { topic: Topic }) {
   const [paused, setPaused] = useState(false);
   const [streak, setStreak] = useState(0);
   const [checks, setChecks] = useState<string[]>([]);
-  const [blankOpen, setBlankOpen] = useState(topic.id !== 'word');
+  const [blankOpen, setBlankOpen] = useState(work.id !== 'word');
   const timerArmed = useRef(false);
 
-  const task = topic.tasks[index];
+  const task = work.tasks[index];
   const limit = timerSeconds(task?.time_sec ?? 45, mode);
 
   useEffect(() => {
@@ -100,7 +110,7 @@ export function PracticeFlow({ topic }: { topic: Topic }) {
       setChecks([]);
       return;
     }
-    if (index + 1 >= topic.tasks.length) {
+    if (index + 1 >= work.tasks.length) {
       setFinished(true);
       return;
     }
@@ -154,11 +164,11 @@ export function PracticeFlow({ topic }: { topic: Topic }) {
         <div>
           <div className="eyebrow">Практика</div>
           <h3>
-            Задание {index + 1} из {topic.tasks.length}
+            Задание {index + 1} из {work.tasks.length}
           </h3>
         </div>
         <div className="badge">
-          <span>{topic.badge}</span>
+          <span>{work.badge}</span>
           {mode !== 'off' ? <span className="timer">{formatTime(seconds)}</span> : null}
         </div>
       </div>

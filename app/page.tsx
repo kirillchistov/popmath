@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { AppShell } from '@/components/AppShell';
 import { TopicList } from '@/components/TopicList';
-import { getAllTopics, getTopic } from '@/lib/content';
+import { getLiveTopic, getLiveTopicsMeta } from '@/lib/live-content';
 import { requireSession } from '@/lib/session';
 import { getStudentPlan } from '@/lib/student-plan';
 
@@ -9,13 +9,46 @@ export const runtime = 'nodejs';
 
 export default async function TodayPage() {
   const session = await requireSession();
-  const topics = getAllTopics();
+  const topics = await getLiveTopicsMeta();
   const plan = await getStudentPlan(session.username);
-  const todayTopic = plan.todayItem ? getTopic(plan.todayItem.topic_id) : null;
+  const todayTopic = plan.todayItem
+    ? await getLiveTopic(plan.todayItem.topic_id)
+    : null;
 
   return (
     <AppShell session={session} currentPath="/">
       <section className="stack">
+        {plan.assigned_tasks.length > 0 ? (
+          <article className="panel empty-card">
+            <div className="eyebrow">От тьютора</div>
+            <h2>
+              {plan.assigned_tasks.length === 1
+                ? 'Одна задача, не весь остров'
+                : `${plan.assigned_tasks.length} задачи в очереди`}
+            </h2>
+            <p>
+              {plan.assigned_tasks[0].topic_title}. Можно пропустить, если
+              ступор — это тоже ход.
+            </p>
+            <ul className="week-list">
+              {plan.assigned_tasks.map((item) => (
+                <li key={item.task.id}>
+                  <strong>{item.task.prompt}</strong>
+                  <p>{item.task.review_title}</p>
+                </li>
+              ))}
+            </ul>
+            <div className="hero-actions">
+              <Link
+                className="btn btn-primary"
+                href={`/task/${plan.assigned_tasks[0].task.id}`}
+              >
+                Начать эту задачу
+              </Link>
+            </div>
+          </article>
+        ) : null}
+
         {!plan.quizDone ? (
           <article className="panel empty-card">
             <div className="eyebrow">Сегодня</div>
@@ -77,7 +110,7 @@ export default async function TodayPage() {
             <h2>Одна основная тема, одно короткое повторение</h2>
             <ul className="week-list">
               {plan.queue.map((item) => {
-                const topic = getTopic(item.topic_id);
+                const topic = topics.find((entry) => entry.id === item.topic_id);
                 return (
                   <li key={`${item.role}-${item.topic_id}`}>
                     <strong>

@@ -35,6 +35,12 @@ export const SELF_TAG_OPTIONS: { code: ErrorCode; label: string }[] = [
   { code: 'freeze', label: 'Страх / ступор' },
 ];
 
+export const ERROR_TAG_OPTIONS: { code: ErrorCode; label: string }[] = [
+  ...SELF_TAG_OPTIONS,
+  { code: 'calculation', label: 'Счёт' },
+  { code: 'strategy', label: 'Стратегия' },
+];
+
 export const SELF_CHECK_ITEMS = [
   { id: 'read', label: 'Дочитала условие до конца' },
   { id: 'sign', label: 'Знак и направление на месте' },

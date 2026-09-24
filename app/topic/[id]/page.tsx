@@ -1,7 +1,8 @@
 import { notFound } from 'next/navigation';
 import { AppShell } from '@/components/AppShell';
 import { PracticeFlow } from '@/components/PracticeFlow';
-import { getTopic } from '@/lib/content';
+import { SupportCards } from '@/components/SupportCards';
+import { getLiveTopic } from '@/lib/live-content';
 import { todayISO } from '@/lib/plan';
 import { markOpenedNewTopic } from '@/lib/plan-store';
 import { requireSession } from '@/lib/session';
@@ -16,7 +17,7 @@ interface TopicPageProps {
 export default async function TopicPage({ params }: TopicPageProps) {
   const session = await requireSession();
   const { id } = await params;
-  const topic = getTopic(id);
+  const topic = await getLiveTopic(id);
   if (!topic) notFound();
 
   if (session.role === 'student') {
@@ -59,6 +60,7 @@ export default async function TopicPage({ params }: TopicPageProps) {
             </section>
           </div>
         </article>
+        <SupportCards supports={topic.supports} />
         <PracticeFlow topic={topic} />
       </section>
     </AppShell>

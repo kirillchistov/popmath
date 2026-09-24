@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { answersMatch } from '@/lib/answers';
-import { getQuizQuestion, getTask } from '@/lib/content';
+import { getQuizQuestion } from '@/lib/content';
+import { getLiveTask } from '@/lib/live-content';
 import { inferErrorCodes } from '@/lib/errors';
 import { getSession } from '@/lib/session';
 import { listAttempts, saveAttempt } from '@/lib/store';
@@ -58,6 +59,7 @@ export async function POST(request: Request) {
   let explainTrap = '';
   let reviewTitle = '';
   let topicId: string | null = null;
+  let extraTraps: string[] = [];
 
   if (kind === 'quiz') {
     const question = getQuizQuestion(taskId);
@@ -71,7 +73,7 @@ export async function POST(request: Request) {
     reviewTitle = question.review_title;
     topicId = question.topic_id;
   } else {
-    const found = getTask(taskId);
+    const found = await getLiveTask(taskId);
     if (!found) {
       return NextResponse.json({ error: 'Unknown task' }, { status: 404 });
     }
@@ -81,6 +83,7 @@ export async function POST(request: Request) {
     explainTrap = found.task.explain_trap;
     reviewTitle = found.task.review_title;
     topicId = found.topic.id;
+    extraTraps = found.task.trap_answers ?? [];
   }
 
   const correct = !skipped && !timedOut && answersMatch(rawAnswer, expected);
@@ -101,7 +104,7 @@ export async function POST(request: Request) {
       timed_out: timedOut,
       raw_answer: rawAnswer,
       expected,
-      trap_answers: trapAnswersFor(taskId),
+      trap_answers: [...trapAnswersFor(taskId), ...extraTraps],
     }),
     timer_mode:
       body.timer_mode === 'soft' || body.timer_mode === 'exam'

@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
-import { SELF_TAG_OPTIONS } from '@/lib/errors';
+import { ERROR_TAG_OPTIONS, SELF_TAG_OPTIONS } from '@/lib/errors';
 import { getSession } from '@/lib/session';
 import { getAttempt, updateAttemptTag } from '@/lib/store';
 import type { ErrorCode } from '@/lib/types';
 
 export const runtime = 'nodejs';
 
-const allowed = new Set(SELF_TAG_OPTIONS.map((item) => item.code));
+const studentAllowed = new Set(SELF_TAG_OPTIONS.map((item) => item.code));
+const tutorAllowed = new Set(ERROR_TAG_OPTIONS.map((item) => item.code));
 
 export async function PATCH(
   request: Request,
@@ -26,12 +27,18 @@ export async function PATCH(
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const body = (await request.json()) as { self_tag?: string };
-  const tag = body.self_tag as ErrorCode | undefined;
+  const body = (await request.json()) as {
+    self_tag?: string;
+    error_code?: string;
+  };
+  const tag = (body.error_code ?? body.self_tag) as ErrorCode | undefined;
+  const allowed = session.role === 'tutor' ? tutorAllowed : studentAllowed;
   if (!tag || !allowed.has(tag)) {
     return NextResponse.json({ error: 'Invalid tag' }, { status: 400 });
   }
 
-  const attempt = await updateAttemptTag(id, tag);
+  const attempt = await updateAttemptTag(id, tag, {
+    replaceCodes: session.role === 'tutor' && Boolean(body.error_code),
+  });
   return NextResponse.json({ attempt });
 }

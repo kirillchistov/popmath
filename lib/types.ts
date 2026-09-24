@@ -5,8 +5,12 @@ export type TaskKind = 'quiz' | 'practice' | 'check';
 export type TimerMode = 'off' | 'soft' | 'exam';
 
 export interface Support {
+  id?: string;
   title: string;
   body: string;
+  metaphor?: string;
+  anchor?: string;
+  steps?: string[];
 }
 
 export interface Task {
@@ -20,6 +24,7 @@ export interface Task {
   review_title: string;
   time_sec: number;
   tags: string[];
+  trap_answers?: string[];
 }
 
 export interface Topic {
@@ -127,4 +132,5 @@ export interface PlanOverride {
   student_id: string;
   order: string[];
   opened_new_topic_on: string | null;
+  assigned_task_ids: string[];
 }

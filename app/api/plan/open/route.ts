@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getTopic } from '@/lib/content';
+import { getLiveTopic } from '@/lib/live-content';
 import { todayISO } from '@/lib/plan';
 import { markOpenedNewTopic } from '@/lib/plan-store';
 import { getSession } from '@/lib/session';
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
 
   const body = (await request.json()) as { topic_id?: string };
   const topicId = body.topic_id?.trim() ?? '';
-  if (!getTopic(topicId)) {
+  if (!(await getLiveTopic(topicId))) {
     return NextResponse.json({ error: 'Unknown topic' }, { status: 404 });
   }
 

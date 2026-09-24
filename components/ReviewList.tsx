@@ -1,3 +1,4 @@
+import { TutorTag } from './TutorTag';
 import type { Attempt } from '@/lib/types';
 
 const tagLabels: Record<string, string> = {
@@ -26,10 +27,12 @@ export function ReviewList({
   attempts,
   emptyText,
   showStudent = false,
+  canEditTag = false,
 }: {
   attempts: Attempt[];
   emptyText: string;
   showStudent?: boolean;
+  canEditTag?: boolean;
 }) {
   if (attempts.length === 0) {
     return (
@@ -82,6 +85,9 @@ export function ReviewList({
             ) : (
               <p>{item.explain_ok}</p>
             )}
+            {canEditTag ? (
+              <TutorTag attemptId={item.id} current={item.self_tag} />
+            ) : null}
           </article>
         );
       })}

@@ -1,6 +1,6 @@
 import { AppShell } from '@/components/AppShell';
 import { TopicList } from '@/components/TopicList';
-import { getAllTopics } from '@/lib/content';
+import { getLiveTopicsMeta } from '@/lib/live-content';
 import { requireSession } from '@/lib/session';
 import { getStudentPlan } from '@/lib/student-plan';
 
@@ -8,7 +8,7 @@ export const runtime = 'nodejs';
 
 export default async function MapPage() {
   const session = await requireSession();
-  const topics = getAllTopics();
+  const topics = await getLiveTopicsMeta();
   const plan = await getStudentPlan(session.username);
 
   return (

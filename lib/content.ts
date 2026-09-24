@@ -12,7 +12,11 @@ const topics: Topic[] = [
   functions as Topic,
 ];
 
-function toMeta(topic: Topic): TopicMeta {
+export function getBaseTopics(): Topic[] {
+  return topics;
+}
+
+export function topicToMeta(topic: Topic): TopicMeta {
   return {
     id: topic.id,
     title: topic.title,
@@ -24,7 +28,7 @@ function toMeta(topic: Topic): TopicMeta {
 }
 
 export function getAllTopics(): TopicMeta[] {
-  return topics.map(toMeta);
+  return topics.map(topicToMeta);
 }
 
 export function getTopic(id: string): Topic | undefined {

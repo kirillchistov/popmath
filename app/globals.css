@@ -654,6 +654,65 @@ p {
   color: var(--color-error);
 }
 
+.tutor-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.field-wide {
+  grid-column: 1 / -1;
+}
+
+.input-area,
+select.input-answer {
+  width: 100%;
+  min-height: 48px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-text);
+  font-size: 16px;
+}
+
+.input-area {
+  resize: vertical;
+  min-height: 5.5rem;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  margin-top: var(--space-4);
+}
+
+.cohort-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.cohort-table th,
+.cohort-table td {
+  text-align: left;
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: top;
+}
+
+.cohort-table th {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
 body.nav-open {
   overflow: hidden;
 }
@@ -728,6 +787,10 @@ body.nav-open {
   .queue-row {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .tutor-form {
+    grid-template-columns: 1fr;
   }
 }
 
