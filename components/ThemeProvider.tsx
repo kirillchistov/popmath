@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { IconMoon, IconSun } from './Icons';
 
 const THEME_KEY = 'oge-theme';
 
@@ -38,12 +39,13 @@ export function ThemeToggle() {
 
   return (
     <button
-      className="btn btn-ghost"
+      className={`icon-btn ${theme === 'dark' ? '' : 'icon-btn-sun'}`}
       type="button"
       onClick={toggle}
       aria-label={theme === 'dark' ? 'Включить светлую тему' : 'Включить тёмную тему'}
+      title={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
     >
-      {theme === 'dark' ? 'Тема' : 'Тема'}
+      {theme === 'dark' ? <IconMoon /> : <IconSun />}
     </button>
   );
 }

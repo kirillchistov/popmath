@@ -29,6 +29,7 @@ export function TaskForm({ topics }: { topics: TopicMeta[] }) {
           review_title: String(data.get('review_title') ?? ''),
           time_sec: Number(data.get('time_sec') ?? 45),
           trap_answers: String(data.get('trap_answers') ?? ''),
+          image: String(data.get('image') ?? ''),
         }),
       });
       const payload = (await response.json()) as { error?: string; task?: { id: string } };
@@ -86,6 +87,10 @@ export function TaskForm({ topics }: { topics: TopicMeta[] }) {
         <label className="field">
           <span className="eyebrow">Частые неверные ответы</span>
           <input className="input-answer" name="trap_answers" placeholder="18, -4" />
+        </label>
+        <label className="field field-wide">
+          <span className="eyebrow">Картинка, если нужна</span>
+          <input className="input-answer" name="image" placeholder="/images/geo-rect-grid.svg" />
         </label>
         <div className="hero-actions field-wide">
           <button className="btn btn-primary" type="submit" disabled={busy}>

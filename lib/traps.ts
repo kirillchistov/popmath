@@ -39,6 +39,14 @@ export const TRAP_ANSWERS: Record<string, string[]> = {
   'quiz-13': ['ромб', 'прямоугольник'],
   'quiz-14': ['20', '10'],
   'quiz-15': ['7', '14'],
+  'geo-1': ['70', '90', '20'],
+  'geo-2': ['140', '50', '80'],
+  'geo-3': ['110', '90', '120'],
+  'geo-4': ['80', '40', '100'],
+  'geo-5': ['24', '12', '18'],
+  'geo-6': ['8', '16', '18'],
+  'geo-7': ['7', '12', '25'],
+  'geo-8': ['8', '2', '6'],
 };
 
 export function trapAnswersFor(taskId: string): string[] {

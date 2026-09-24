@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { IconClose, IconMenu } from './Icons';
 import { LogoutButton } from './LogoutButton';
 import { ThemeToggle } from './ThemeProvider';
 import { isCurrentPath } from '@/lib/nav';
@@ -24,6 +25,17 @@ export function AppNav({ username, currentPath, links }: AppNavProps) {
     return () => document.body.classList.remove('nav-open');
   }, [open]);
 
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
+
+  const close = () => setOpen(false);
+
   return (
     <>
       <div className="toolbar desktop-toolbar">
@@ -45,33 +57,51 @@ export function AppNav({ username, currentPath, links }: AppNavProps) {
 
       <div className="mobile-toolbar">
         <span className="eyebrow user-chip">{username}</span>
+        <ThemeToggle />
+        <LogoutButton />
         <button
-          className="menu-btn"
+          className="icon-btn menu-btn"
           type="button"
           aria-expanded={open}
           aria-controls="mobile-nav"
-          onClick={() => setOpen((value) => !value)}
+          aria-label="Открыть меню"
+          title="Меню"
+          onClick={() => setOpen(true)}
         >
-          {open ? 'Закрыть' : 'Меню'}
+          <IconMenu />
         </button>
       </div>
 
       <div
         className={`nav-backdrop ${open ? 'show' : ''}`}
-        onClick={() => setOpen(false)}
+        onPointerDown={close}
         aria-hidden={!open}
       />
       <nav
         id="mobile-nav"
         className={`mobile-drawer ${open ? 'show' : ''}`}
         aria-label="Мобильное меню"
+        aria-hidden={!open}
+        onPointerDown={(event) => event.stopPropagation()}
       >
+        <div className="mobile-drawer-head">
+          <span className="eyebrow">Меню</span>
+          <button
+            className="icon-btn"
+            type="button"
+            aria-label="Закрыть меню"
+            title="Закрыть"
+            onClick={close}
+          >
+            <IconClose />
+          </button>
+        </div>
         {links.map((link) => (
           <Link
             key={link.href}
             href={link.href}
             aria-current={isCurrentPath(currentPath, link.href) ? 'page' : undefined}
-            onClick={() => setOpen(false)}
+            onClick={close}
           >
             {link.label}
           </Link>

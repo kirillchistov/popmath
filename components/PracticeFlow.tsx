@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { postAttempt } from '@/lib/client-attempts';
 import { readTimerMode, timerSeconds, writeTimerMode } from '@/lib/timer';
 import { BlankStart } from './BlankStart';
+import { GeoStart } from './GeoStart';
 import { PauseScreen } from './PauseScreen';
 import { SelfCheck, allChecksOn, toggleCheck } from './SelfCheck';
 import { SelfTag } from './SelfTag';
@@ -35,7 +36,9 @@ export function PracticeFlow({
   const [paused, setPaused] = useState(false);
   const [streak, setStreak] = useState(0);
   const [checks, setChecks] = useState<string[]>([]);
-  const [blankOpen, setBlankOpen] = useState(work.id !== 'word');
+  const [blankOpen, setBlankOpen] = useState(
+    work.id !== 'word' && work.id !== 'geometry',
+  );
   const timerArmed = useRef(false);
 
   const task = work.tasks[index];
@@ -122,6 +125,9 @@ export function PracticeFlow({
   };
 
   if (!blankOpen) {
+    if (work.id === 'geometry') {
+      return <GeoStart onOpen={() => setBlankOpen(true)} />;
+    }
     return <BlankStart onOpen={() => setBlankOpen(true)} />;
   }
 
@@ -173,6 +179,11 @@ export function PracticeFlow({
         </div>
       </div>
       <TimerModeSwitch mode={mode} onChange={changeMode} />
+      {task.image ? (
+        <figure className="task-figure">
+          <img src={task.image} alt="" />
+        </figure>
+      ) : null}
       <p className="prompt">{task.prompt}</p>
       <SelfCheck
         checked={checks}

@@ -195,7 +195,7 @@
     "explain_trap": "Ошибка — перепутать со смежными и вертикальными или с треугольником.",
     "review_title": "Смежные — это 180°",
     "time_sec": 25,
-    "topic_id": null
+    "topic_id": "geometry"
   },
   {
     "id": "quiz-12",
@@ -213,7 +213,7 @@
     "explain_trap": "Ошибка — назвать 360°, как у четырёхугольника.",
     "review_title": "В треугольнике всегда 180°",
     "time_sec": 25,
-    "topic_id": null
+    "topic_id": "geometry"
   },
   {
     "id": "quiz-13",
@@ -231,7 +231,7 @@
     "explain_trap": "Ошибка — назвать только ромб или только прямоугольник.",
     "review_title": "Прямые углы и равные стороны — квадрат",
     "time_sec": 25,
-    "topic_id": null
+    "topic_id": "geometry"
   },
   {
     "id": "quiz-14",
@@ -249,7 +249,7 @@
     "explain_trap": "Ошибка — умножить 5 на 4 или сложить стороны.",
     "review_title": "Площадь квадрата — сторона в квадрате",
     "time_sec": 25,
-    "topic_id": null
+    "topic_id": "geometry"
   },
   {
     "id": "quiz-15",
@@ -267,6 +267,6 @@
     "explain_trap": "Ошибка — сложить 3 и 4 или посчитать периметр.",
     "review_title": "Клетки тоже умножаются",
     "time_sec": 25,
-    "topic_id": null
+    "topic_id": "geometry"
   }
 ]

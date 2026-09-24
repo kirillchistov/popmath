@@ -1,5 +1,7 @@
 'use client';
 
+import { IconLogout } from './Icons';
+
 export function LogoutButton() {
   const logout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
@@ -7,8 +9,14 @@ export function LogoutButton() {
   };
 
   return (
-    <button className="btn btn-ghost" type="button" onClick={logout}>
-      Выйти
+    <button
+      className="icon-btn"
+      type="button"
+      onClick={logout}
+      aria-label="Выйти"
+      title="Выйти"
+    >
+      <IconLogout />
     </button>
   );
 }

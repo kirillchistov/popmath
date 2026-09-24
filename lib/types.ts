@@ -25,6 +25,7 @@ export interface Task {
   time_sec: number;
   tags: string[];
   trap_answers?: string[];
+  image?: string;
 }
 
 export interface Topic {
@@ -34,7 +35,7 @@ export interface Topic {
   exam_slots: number[];
   phrase: string;
   metaphor: string;
-  accent: 'eq' | 'ineq' | 'word' | 'func';
+  accent: 'eq' | 'ineq' | 'word' | 'func' | 'geo';
   steps: string[];
   traps: string[];
   supports: Support[];

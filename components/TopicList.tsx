@@ -7,6 +7,7 @@ const symbols: Record<TopicMeta['accent'], string> = {
   ineq: '<',
   word: 'T',
   func: 'f',
+  geo: '△',
 };
 
 export function TopicList({

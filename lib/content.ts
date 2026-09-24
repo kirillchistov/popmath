@@ -3,6 +3,7 @@ import equations from '@/content/topics/equations.json';
 import inequalities from '@/content/topics/inequalities.json';
 import word from '@/content/topics/word.json';
 import functions from '@/content/topics/functions.json';
+import geometry from '@/content/topics/geometry.json';
 import quiz from '@/content/quiz.json';
 
 const topics: Topic[] = [
@@ -10,6 +11,7 @@ const topics: Topic[] = [
   inequalities as Topic,
   word as Topic,
   functions as Topic,
+  geometry as Topic,
 ];
 
 export function getBaseTopics(): Topic[] {
@@ -51,7 +53,13 @@ export function getTask(taskId: string): { topic: Topic; task: Task } | undefine
   return undefined;
 }
 
-const CHECK_TASK_IDS = ['equations-1', 'word-1', 'inequalities-1', 'functions-2'];
+const CHECK_TASK_IDS = [
+  'equations-1',
+  'word-1',
+  'inequalities-1',
+  'functions-2',
+  'geo-3',
+];
 
 export function getCheckTasks(): Task[] {
   return CHECK_TASK_IDS.map((id) => getTask(id)?.task).filter(

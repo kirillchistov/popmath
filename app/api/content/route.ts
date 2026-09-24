@@ -35,6 +35,7 @@ export async function POST(request: Request) {
     time_sec?: number;
     tags?: string;
     trap_answers?: string;
+    image?: string;
     title?: string;
     metaphor?: string;
     anchor?: string;
@@ -111,6 +112,7 @@ export async function POST(request: Request) {
       .split(',')
       .map((item) => item.trim())
       .filter(Boolean),
+    image: body.image?.trim() || undefined,
   };
 
   await addOverlayTask(task);

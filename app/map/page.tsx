@@ -16,7 +16,7 @@ export default async function MapPage() {
       <section className="stack">
         <article className="panel empty-card">
           <div className="eyebrow">Карта</div>
-          <h2>Четыре острова, не весь кодификатор</h2>
+          <h2>Пять островов, не весь кодификатор</h2>
           <p>
             {plan.quizDone
               ? 'Состояния уже из твоих попыток. Следующий шаг всё равно на экране «Сегодня».'

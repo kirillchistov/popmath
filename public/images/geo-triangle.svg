@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 160" fill="none">
+  <rect width="280" height="160" fill="#f7f6f2"/>
+  <path d="M140 24 L236 132 H44 Z" stroke="#28251d" stroke-width="2.2"/>
+  <path d="M52 132 A22 22 0 0 1 68 116" stroke="#0d6b6f" stroke-width="2"/>
+  <path d="M228 132 A22 22 0 0 0 212 116" stroke="#0d6b6f" stroke-width="2"/>
+  <text x="128" y="48" font-size="14" fill="#9d3d54" font-family="Georgia, serif">80°</text>
+  <text x="56" y="128" font-size="13" fill="#0d6b6f" font-family="Georgia, serif">?</text>
+  <text x="200" y="128" font-size="13" fill="#0d6b6f" font-family="Georgia, serif">?</text>
+</svg>
