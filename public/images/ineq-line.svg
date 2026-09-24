@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 110" fill="none">
+  <rect width="420" height="110" fill="#f7f6f2"/>
+  <line x1="28" y1="58" x2="392" y2="58" stroke="#28251d" stroke-width="2"/>
+  <polygon points="392,58 378,52 378,64" fill="#28251d"/>
+  <g stroke="#28251d" stroke-width="1.6">
+    <line x1="52" y1="50" x2="52" y2="66"/>
+    <line x1="92" y1="50" x2="92" y2="66"/>
+    <line x1="132" y1="50" x2="132" y2="66"/>
+    <line x1="172" y1="50" x2="172" y2="66"/>
+    <line x1="212" y1="50" x2="212" y2="66"/>
+    <line x1="252" y1="50" x2="252" y2="66"/>
+    <line x1="292" y1="50" x2="292" y2="66"/>
+    <line x1="332" y1="50" x2="332" y2="66"/>
+    <line x1="372" y1="50" x2="372" y2="66"/>
+  </g>
+  <g font-size="12" fill="#5c574e" font-family="ui-sans-serif, system-ui" text-anchor="middle">
+    <text x="52" y="84">-4</text>
+    <text x="92" y="84">-3</text>
+    <text x="132" y="84">-2</text>
+    <text x="172" y="84">-1</text>
+    <text x="212" y="84">0</text>
+    <text x="252" y="84">1</text>
+    <text x="292" y="84">2</text>
+    <text x="332" y="84">3</text>
+    <text x="372" y="84">4</text>
+  </g>
+  <circle cx="92" cy="58" r="5" fill="#0d6b6f"/>
+  <circle cx="152" cy="58" r="5" fill="#0d6b6f"/>
+  <circle cx="232" cy="58" r="5" fill="#0d6b6f"/>
+  <circle cx="292" cy="58" r="5" fill="#0d6b6f"/>
+  <g font-size="15" fill="#0d6b6f" font-family="Georgia, serif" text-anchor="middle">
+    <text x="92" y="28">A</text>
+    <text x="152" y="28">B</text>
+    <text x="232" y="28">C</text>
+    <text x="292" y="28">D</text>
+  </g>
+</svg>

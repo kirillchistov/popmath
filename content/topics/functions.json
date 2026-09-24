@@ -212,6 +212,48 @@
         "4;0",
         "4"
       ]
+    },
+    {
+      "id": "functions-11",
+      "topic_id": "functions",
+      "prompt": "На рисунке график y = x + 1. Найди y при x = 3. Можно снять с клеток.",
+      "answer": "4",
+      "kind": "practice",
+      "explain_ok": "3 + 1 = 4. На клетке точка над x = 3 стоит на 4.",
+      "explain_trap": "Ошибка — ответить 3 или спутать оси.",
+      "review_title": "С клетки: вверх от нужного x до линии",
+      "time_sec": 45,
+      "tags": [
+        "график",
+        "огэ-11"
+      ],
+      "trap_answers": [
+        "3",
+        "2",
+        "1"
+      ],
+      "image": "/images/func-line.svg"
+    },
+    {
+      "id": "functions-12",
+      "topic_id": "functions",
+      "prompt": "Прямая проходит через (0; 0), (1; 2) и (2; 4). Какая формула? Ответ вида y=2x — без пробелов, одна из: y=x, y=2x, y=x^2.",
+      "answer": "y=2x",
+      "kind": "practice",
+      "explain_ok": "Когда x растёт на 1, y растёт на 2. Это y = 2x, не парабола.",
+      "explain_trap": "Ошибка — назвать y=x, потому что «прямая», или y=x² из-за точек.",
+      "review_title": "Смотри, на сколько растёт y за один шаг x",
+      "time_sec": 60,
+      "tags": [
+        "график",
+        "огэ-11"
+      ],
+      "trap_answers": [
+        "y=x",
+        "y=x^2",
+        "y=x2"
+      ],
+      "image": "/images/func-slope.svg"
     }
   ]
 }
