@@ -1,5 +1,6 @@
 import { AppShell } from '@/components/AppShell';
 import { AssignForm } from '@/components/AssignForm';
+import { DigestPanel } from '@/components/DigestPanel';
 import { CohortTable } from '@/components/CohortTable';
 import { QueueEditor } from '@/components/QueueEditor';
 import { ReviewList } from '@/components/ReviewList';
@@ -9,6 +10,8 @@ import { listCohortRows } from '@/lib/cohort';
 import { topicToMeta } from '@/lib/content';
 import { loadLiveTopics } from '@/lib/live-content';
 import { requireRole } from '@/lib/session';
+import { listStudentUsernames } from '@/lib/auth';
+import { listLatestDigests } from '@/lib/digest-store';
 import { listCohortPlans } from '@/lib/student-plan';
 import { listAttempts } from '@/lib/store';
 
@@ -16,12 +19,14 @@ export const runtime = 'nodejs';
 
 export default async function TutorPage() {
   const session = await requireRole('tutor');
-  const [attempts, plans, topics, cohort] = await Promise.all([
+  const [attempts, plans, topics, cohort, digests] = await Promise.all([
     listAttempts(),
     listCohortPlans(),
     loadLiveTopics(),
     listCohortRows(),
+    listLatestDigests(),
   ]);
+  const students = listStudentUsernames(attempts.map((item) => item.student_id));
   const metas = topics.map(topicToMeta);
 
   return (
@@ -42,6 +47,7 @@ export default async function TutorPage() {
         </article>
         <TaskForm topics={metas} />
         <SupportForm topics={metas} />
+        <DigestPanel students={students} initial={digests} />
         <AssignForm topics={topics} plans={plans} />
         <QueueEditor plans={plans} topics={metas} />
         <ReviewList

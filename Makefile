@@ -1,4 +1,4 @@
-.PHONY: help install env dev build start
+.PHONY: help install env dev build start digest
 
 help:
 	@echo "make install  — поставить зависимости"
@@ -6,6 +6,7 @@ help:
 	@echo "make dev      — локальный сервер http://localhost:3000"
 	@echo "make build    — production-сборка"
 	@echo "make start    — запустить собранное приложение"
+	@echo "make digest   — собрать недельные ссылки для когорты (нужен CRON_SECRET)"
 
 install:
 	npm install
@@ -21,3 +22,10 @@ build:
 
 start:
 	npm start
+
+digest:
+	@test -f .env.local || (echo "Нет .env.local" && exit 1)
+	@set -a && . ./.env.local && set +a && \
+	curl -sS -X POST \
+	  -H "Authorization: Bearer $$CRON_SECRET" \
+	  "http://127.0.0.1:$${PORT:-3000}/api/cron/digest"

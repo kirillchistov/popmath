@@ -780,6 +780,35 @@ select.input-answer {
   letter-spacing: 0.06em;
 }
 
+.digest-page {
+  padding-top: var(--space-6);
+}
+
+.digest-head {
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.digest-head h1 {
+  font-size: var(--text-xl);
+}
+
+.digest-grid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+@media (min-width: 800px) {
+  .digest-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .digest-grid > :last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}
+
 body.nav-open {
   overflow: hidden;
 }

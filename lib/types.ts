@@ -135,3 +135,31 @@ export interface PlanOverride {
   opened_new_topic_on: string | null;
   assigned_task_ids: string[];
 }
+
+export interface DigestTopicLine {
+  title: string;
+  note: string;
+}
+
+export interface DigestPayload {
+  week_start: string;
+  week_label: string;
+  visits: number;
+  holds: DigestTopicLine[];
+  working: DigestTopicLine[];
+  error_title: string;
+  error_body: string;
+  do_home: string[];
+  dont_home: string[];
+  letter: string;
+}
+
+export interface DigestRecord {
+  token: string;
+  student_id: string;
+  week_start: string;
+  created_at: string;
+  expires_at: string;
+  sent_at: string | null;
+  payload: DigestPayload;
+}
