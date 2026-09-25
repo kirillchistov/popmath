@@ -904,6 +904,35 @@ body.nav-open {
   }
 }
 
+.notebook-gate {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.timer-suggest {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+}
+
+.review-photo img,
+.task-figure img {
+  width: 100%;
+  height: auto;
+}
+
+.review-photo {
+  margin: var(--space-3) 0 0;
+}
+
+.theory-list .tag-row {
+  margin-top: var(--space-2);
+}
+
 @media (min-width: 640px) and (max-width: 899px) {
   .topic-grid {
     grid-template-columns: 1fr 1fr;

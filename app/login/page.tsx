@@ -46,7 +46,7 @@ function LoginForm() {
     <div className="login-page">
       <div className="panel login-card">
         <div className="eyebrow">ОГЭ / математика</div>
-        <h1>Быстрый ход</h1>
+        <h1>Матешка</h1>
         <p>Закрытая группа. Войди своим логином — без публичной регистрации.</p>
         <p>
           Демо-вход ученика: логин <code>demo</code>, пароль <code>demo@demo5678</code>.

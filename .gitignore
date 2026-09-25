@@ -40,4 +40,5 @@ next-env.d.ts
 
 # локальное хранилище попыток
 /data/*.json
+/data/uploads/
 !/data/.gitkeep

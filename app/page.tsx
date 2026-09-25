@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { AppShell } from '@/components/AppShell';
+import { TheoryMarks } from '@/components/TheoryMarks';
 import { TopicList } from '@/components/TopicList';
 import { getLiveTopic, getLiveTopicsMeta } from '@/lib/live-content';
 import { requireSession } from '@/lib/session';
@@ -107,7 +108,7 @@ export default async function TodayPage() {
         {plan.quizDone ? (
           <article className="panel section-card">
             <div className="eyebrow">Неделя</div>
-            <h2>Одна основная тема, одно короткое повторение</h2>
+            <h2>Сейчас в работе: счёт, уравнения, треугольники</h2>
             <ul className="week-list">
               {plan.queue.map((item) => {
                 const topic = topics.find((entry) => entry.id === item.topic_id);
@@ -126,6 +127,7 @@ export default async function TodayPage() {
         ) : (
           <TopicList topics={topics} />
         )}
+        {plan.quizDone ? <TheoryMarks /> : null}
       </section>
     </AppShell>
   );

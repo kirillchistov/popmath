@@ -58,6 +58,11 @@ export function ReviewList({
               {item.timed_out ? ' · время' : ''}
             </div>
             <p className="prompt">{item.prompt}</p>
+            {item.photo_path ? (
+              <figure className="review-photo">
+                <img src={item.photo_path} alt="Тетрадь" />
+              </figure>
+            ) : null}
             <p>
               <strong>Ответ:</strong> {item.raw_answer || 'нет ответа'} ·{' '}
               <strong>Нужно:</strong> {item.expected}

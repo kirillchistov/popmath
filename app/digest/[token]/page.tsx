@@ -44,6 +44,18 @@ function DigestBlocks({ payload }: { payload: DigestPayload }) {
         )}
       </article>
 
+      {payload.theory_gaps && payload.theory_gaps.length > 0 ? (
+        <article className="panel section-card">
+          <div className="eyebrow">Теория 7 класса</div>
+          <h2>Что пометила сама</h2>
+          <ul className="week-list">
+            {payload.theory_gaps.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </article>
+      ) : null}
+
       <article className="panel section-card">
         <div className="eyebrow">Тип ошибки</div>
         <h2>{payload.error_title}</h2>

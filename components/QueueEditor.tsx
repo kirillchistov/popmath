@@ -66,7 +66,7 @@ export function QueueEditor({
             <h2>{plan.student_id}</h2>
             <p>
               {plan.quizDone
-                ? 'Квиз есть. Можно двигать приоритет тем.'
+                ? 'Неделя берёт только счёт, уравнения и треугольники. Остальные острова на карте остаются, но в неделю не садятся.'
                 : `Квиз ещё не закрыт: ${plan.quizCount} из ${plan.quizTotal}.`}
             </p>
             <ol className="queue-list">

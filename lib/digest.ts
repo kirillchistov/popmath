@@ -2,6 +2,8 @@ import { getLiveTopic } from './live-content';
 import { weekStartISO } from './plan';
 import { getStudentPlan } from './student-plan';
 import { listAttempts } from './store';
+import { getTheoryItem } from './theory';
+import { listTheoryMarks } from './theory-store';
 import type { DigestPayload, DigestTopicLine, ErrorCode, TopicState } from './types';
 
 const PARENT_ERROR: Record<ErrorCode, { title: string; body: string }> = {
@@ -71,9 +73,10 @@ export async function buildDigestPayload(
   now = new Date(),
 ): Promise<DigestPayload> {
   const weekStart = weekStartISO(now);
-  const [plan, attempts] = await Promise.all([
+  const [plan, attempts, theoryMarks] = await Promise.all([
     getStudentPlan(studentId),
     listAttempts(studentId),
+    listTheoryMarks(studentId),
   ]);
   const weekItems = attempts.filter((item) => item.created_at.slice(0, 10) >= weekStart);
   const errorCodes = weekItems
@@ -139,6 +142,13 @@ export async function buildDigestPayload(
     'Не писать тьютору «ну что, как она?» — картина недели здесь.',
   ];
 
+  const theoryGaps = theoryMarks
+    .filter((item) => item.mark === 'forgot' || item.mark === 'question')
+    .map((item) => {
+      const title = getTheoryItem(item.item_id)?.title ?? item.item_id;
+      return item.mark === 'question' ? `${title} — есть вопрос` : `${title} — не помнит`;
+    });
+
   const letter = [
     `Неделя ${weekLabel(weekStart)}.`,
     holds.length
@@ -147,10 +157,15 @@ export async function buildDigestPayload(
     working.length
       ? `В работе: ${working.map((item) => item.title).join(', ')}.`
       : 'Отдельной темы в работе нет.',
+    theoryGaps.length
+      ? `Теория 7 класса, пометки: ${theoryGaps.join('; ')}.`
+      : '',
     `${error.title}. ${error.body}`,
     `Дома: ${doHome.join(' ')}`,
     `Не делать: ${dontHome.join(' ')}`,
-  ].join('\n\n');
+  ]
+    .filter(Boolean)
+    .join('\n\n');
 
   return {
     week_start: weekStart,
@@ -163,5 +178,6 @@ export async function buildDigestPayload(
     do_home: doHome,
     dont_home: dontHome,
     letter,
+    theory_gaps: theoryGaps,
   };
 }

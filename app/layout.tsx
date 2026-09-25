@@ -3,7 +3,7 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Быстрый ход — ОГЭ по математике',
+  title: 'Матешка — ОГЭ по математике',
   description: 'Закрытый тренажёр для небольшой группы: короткие шаги, без стыда.',
 };
 

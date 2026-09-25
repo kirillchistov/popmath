@@ -3,8 +3,9 @@ import { answersMatch } from '@/lib/answers';
 import { getQuizQuestion } from '@/lib/content';
 import { getLiveTask } from '@/lib/live-content';
 import { inferErrorCodes } from '@/lib/errors';
+import { PHOTO_MAX_BYTES, photoExt, saveAttemptPhoto } from '@/lib/photos';
 import { getSession } from '@/lib/session';
-import { listAttempts, saveAttempt } from '@/lib/store';
+import { attachAttemptPhoto, listAttempts, saveAttempt } from '@/lib/store';
 import { trapAnswersFor } from '@/lib/traps';
 import type { AttemptDraft, TaskKind, TimerMode } from '@/lib/types';
 
@@ -32,7 +33,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = (await request.json()) as {
+  const form = await request.formData();
+  const rawPayload = form.get('payload');
+  if (typeof rawPayload !== 'string') {
+    return NextResponse.json({ error: 'Invalid attempt' }, { status: 400 });
+  }
+  let body: {
     task_id?: string;
     kind?: TaskKind;
     raw_answer?: string;
@@ -41,7 +47,14 @@ export async function POST(request: Request) {
     skipped?: boolean;
     timer_mode?: TimerMode;
     self_checked?: boolean;
+    notebook_done?: boolean;
   };
+  try {
+    body = JSON.parse(rawPayload) as typeof body;
+  } catch {
+    return NextResponse.json({ error: 'Invalid attempt' }, { status: 400 });
+  }
+  const photo = form.get('photo');
 
   const taskId = body.task_id?.trim() ?? '';
   const kind = body.kind;
@@ -111,6 +124,7 @@ export async function POST(request: Request) {
         ? body.timer_mode
         : 'off',
     self_checked: Boolean(body.self_checked),
+    notebook_done: Boolean(body.notebook_done),
     explain_ok: explainOk,
     explain_trap: explainTrap,
     review_title: reviewTitle,
@@ -118,5 +132,14 @@ export async function POST(request: Request) {
   };
 
   const attempt = await saveAttempt(draft);
+  if (photo instanceof File && photo.size > 0) {
+    if (photo.size > PHOTO_MAX_BYTES || !photoExt(photo.type)) {
+      return NextResponse.json({ attempt }, { status: 200 });
+    }
+    const buffer = Buffer.from(await photo.arrayBuffer());
+    const photoPath = await saveAttemptPhoto(attempt.id, buffer, photo.type);
+    const withPhoto = await attachAttemptPhoto(attempt.id, photoPath);
+    return NextResponse.json({ attempt: withPhoto ?? attempt });
+  }
   return NextResponse.json({ attempt });
 }

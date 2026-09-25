@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { postAttempt } from '@/lib/client-attempts';
+import { needsNotebook, pickSitting } from '@/lib/focus';
 import { readTimerMode, timerSeconds, writeTimerMode } from '@/lib/timer';
 import { BlankStart } from './BlankStart';
 import { GeoStart } from './GeoStart';
@@ -11,18 +12,26 @@ import { PauseScreen } from './PauseScreen';
 import { SelfCheck, allChecksOn, toggleCheck } from './SelfCheck';
 import { SelfTag } from './SelfTag';
 import { TimerModeSwitch } from './TimerModeSwitch';
-import type { Attempt, TimerMode, Topic } from '@/lib/types';
+import type { Attempt, TimerMode, Topic, TopicState } from '@/lib/types';
 
 export function PracticeFlow({
   topic,
   onlyTaskId,
+  topicState,
+  solvedIds = [],
+  limitSitting = false,
 }: {
   topic: Topic;
   onlyTaskId?: string;
+  topicState?: TopicState;
+  solvedIds?: string[];
+  limitSitting?: boolean;
 }) {
   const tasks = onlyTaskId
     ? topic.tasks.filter((item) => item.id === onlyTaskId)
-    : topic.tasks;
+    : limitSitting
+      ? pickSitting(topic, solvedIds)
+      : topic.tasks;
   const work = { ...topic, tasks: tasks.length > 0 ? tasks : topic.tasks };
   const router = useRouter();
   const [index, setIndex] = useState(0);
@@ -39,9 +48,12 @@ export function PracticeFlow({
   const [blankOpen, setBlankOpen] = useState(
     work.id !== 'word' && work.id !== 'geometry',
   );
+  const [notebookDone, setNotebookDone] = useState(false);
+  const [photo, setPhoto] = useState<File | null>(null);
   const timerArmed = useRef(false);
 
   const task = work.tasks[index];
+  const notebook = needsNotebook(task);
   const limit = timerSeconds(task?.time_sec ?? 45, mode);
 
   useEffect(() => {
@@ -96,6 +108,8 @@ export function PracticeFlow({
         skipped,
         timer_mode: mode,
         self_checked: allChecksOn(checks),
+        notebook_done: notebookDone,
+        photo,
       });
       setCurrent(attempt);
       const nextStreak = attempt.correct ? 0 : streak + 1;
@@ -111,6 +125,8 @@ export function PracticeFlow({
       setCurrent(null);
       setAnswer('');
       setChecks([]);
+      setNotebookDone(false);
+      setPhoto(null);
       return;
     }
     if (index + 1 >= work.tasks.length) {
@@ -120,6 +136,8 @@ export function PracticeFlow({
     setCurrent(null);
     setAnswer('');
     setChecks([]);
+    setNotebookDone(false);
+    setPhoto(null);
     setStartedAt(Date.now());
     setIndex((value) => value + 1);
   };
@@ -179,6 +197,14 @@ export function PracticeFlow({
         </div>
       </div>
       <TimerModeSwitch mode={mode} onChange={changeMode} />
+      {topicState === 'holds' && mode === 'off' ? (
+        <div className="timer-suggest">
+          <p>Тема уже держится. Можно включить мягкий таймер — без экзамена.</p>
+          <button className="btn" type="button" onClick={() => changeMode('soft')}>
+            Включить мягкий
+          </button>
+        </div>
+      ) : null}
       {task.image ? (
         <figure className="task-figure">
           <img src={task.image} alt="" />
@@ -202,12 +228,41 @@ export function PracticeFlow({
           placeholder="Например: 4 или x = 4"
         />
       </div>
+      {notebook && !current ? (
+        <div className="notebook-gate">
+          <label className="check-item">
+            <input
+              type="checkbox"
+              checked={notebookDone}
+              onChange={(event) => setNotebookDone(event.target.checked)}
+            />
+            <span>Посчитала в тетради, рукой, без калькулятора</span>
+          </label>
+          <label className="form-field">
+            <span className="eyebrow">Фото тетради</span>
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={(event) => setPhoto(event.target.files?.[0] ?? null)}
+            />
+            <span className="timer-hint">
+              {photo
+                ? photo.name
+                : 'Сними столбик или чертёж. Без фото «проверить» не откроется.'}
+            </span>
+          </label>
+        </div>
+      ) : null}
       {!current ? (
         <div className="hero-actions">
           <button
             className="btn btn-primary"
             type="button"
-            disabled={busy || !answer.trim()}
+            disabled={
+              busy ||
+              !answer.trim() ||
+              (notebook && (!notebookDone || !photo))
+            }
             onClick={() => submit(answer, false, false)}
           >
             Проверить

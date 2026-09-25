@@ -6,6 +6,7 @@ import { QueueEditor } from '@/components/QueueEditor';
 import { ReviewList } from '@/components/ReviewList';
 import { SupportForm } from '@/components/SupportForm';
 import { TaskForm } from '@/components/TaskForm';
+import { TheoryPanel } from '@/components/TheoryPanel';
 import { listCohortRows } from '@/lib/cohort';
 import { topicToMeta } from '@/lib/content';
 import { loadLiveTopics } from '@/lib/live-content';
@@ -50,6 +51,7 @@ export default async function TutorPage() {
         <DigestPanel students={students} initial={digests} />
         <AssignForm topics={topics} plans={plans} />
         <QueueEditor plans={plans} topics={metas} />
+        <TheoryPanel />
         <ReviewList
           attempts={attempts}
           showStudent

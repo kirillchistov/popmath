@@ -39,7 +39,7 @@ export function AppShell({ session, currentPath, children }: AppShellProps) {
           </div>
           <div>
             <div className="eyebrow">ОГЭ / математика</div>
-            <h1>Быстрый ход</h1>
+            <h1>Матешка</h1>
           </div>
         </Link>
         <AppNav username={session.username} currentPath={currentPath} links={links} />

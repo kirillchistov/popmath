@@ -48,6 +48,18 @@ export async function getAttempt(id: string): Promise<Attempt | undefined> {
   return attempts.find((item) => item.id === id);
 }
 
+export async function attachAttemptPhoto(
+  id: string,
+  photoPath: string,
+): Promise<Attempt | undefined> {
+  const attempts = await readAll();
+  const index = attempts.findIndex((item) => item.id === id);
+  if (index === -1) return undefined;
+  attempts[index] = { ...attempts[index], photo_path: photoPath };
+  await writeAll(attempts);
+  return attempts[index];
+}
+
 export async function updateAttemptTag(
   id: string,
   selfTag: ErrorCode,

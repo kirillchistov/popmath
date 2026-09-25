@@ -105,6 +105,8 @@ export interface Attempt {
   topic_id: string | null;
   timer_mode?: TimerMode;
   self_checked?: boolean;
+  notebook_done?: boolean;
+  photo_path?: string;
   created_at: string;
 }
 
@@ -141,6 +143,23 @@ export interface DigestTopicLine {
   note: string;
 }
 
+export type TheoryMarkKind = 'remember' | 'forgot' | 'question';
+
+export interface TheoryItem {
+  id: string;
+  title: string;
+  focus: boolean;
+  hint: string;
+}
+
+export interface TheoryMark {
+  student_id: string;
+  item_id: string;
+  mark: TheoryMarkKind;
+  note: string;
+  updated_at: string;
+}
+
 export interface DigestPayload {
   week_start: string;
   week_label: string;
@@ -152,6 +171,7 @@ export interface DigestPayload {
   do_home: string[];
   dont_home: string[];
   letter: string;
+  theory_gaps?: string[];
 }
 
 export interface DigestRecord {

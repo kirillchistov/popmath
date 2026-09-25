@@ -1,3 +1,4 @@
+import { isWeekTopic } from './focus';
 import type { QueueItem, TopicProgress, TopicState } from './types';
 
 const STATE_RANK: Record<TopicState, number> = {
@@ -59,9 +60,10 @@ export function buildQueue(
   progress: TopicProgress[],
   tutorOrder: string[] = [],
 ): QueueItem[] {
-  if (progress.length === 0) return [];
-  const byId = new Map(progress.map((item) => [item.topic_id, item]));
-  const ids = orderedTopicIds(progress, tutorOrder);
+  const week = progress.filter((item) => isWeekTopic(item.topic_id));
+  if (week.length === 0) return [];
+  const byId = new Map(week.map((item) => [item.topic_id, item]));
+  const ids = orderedTopicIds(week, tutorOrder.filter((id) => isWeekTopic(id)));
   const items: QueueItem[] = [];
 
   const focusId = ids.find((id) => byId.get(id)?.state !== 'holds') ?? ids[0];
