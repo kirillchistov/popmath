@@ -41,8 +41,10 @@ export const ERROR_TAG_OPTIONS: { code: ErrorCode; label: string }[] = [
   { code: 'strategy', label: 'Стратегия' },
 ];
 
-export const SELF_CHECK_ITEMS = [
-  { id: 'read', label: 'Дочитала условие до конца' },
-  { id: 'sign', label: 'Знак и направление на месте' },
-  { id: 'sense', label: 'Ответ имеет смысл в задаче' },
+export const SELF_CHECK_ID = 'ready';
+
+export const SELF_CHECK_HINTS = [
+  'Дочитать условие до конца',
+  'Проверить знаки и направление',
+  'Найти в задаче здравый смысл',
 ];

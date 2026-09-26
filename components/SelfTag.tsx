@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { tagAttempt } from '@/lib/client-attempts';
 import { SELF_TAG_OPTIONS } from '@/lib/errors';
 import type { ErrorCode } from '@/lib/types';
+import { ReportBug } from './ReportBug';
 
 interface SelfTagProps {
   attemptId: string;
@@ -25,7 +26,8 @@ export function SelfTag({ attemptId }: SelfTagProps) {
 
   return (
     <div className="self-tag">
-      <p className="eyebrow">Что случилось?</p>
+      <ReportBug attemptId={attemptId} />
+      <p className="eyebrow">Если ошибка моя — коротко</p>
       <div className="tag-row">
         {SELF_TAG_OPTIONS.map((option) => (
           <button

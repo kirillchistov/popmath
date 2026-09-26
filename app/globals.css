@@ -435,9 +435,16 @@ p {
   outline: 2px solid color-mix(in srgb, var(--color-warning) 35%, transparent);
 }
 
-.check-list {
+.check-list,
+.check-hints {
   display: grid;
   gap: var(--space-2);
+}
+
+.check-hints {
+  margin: 0;
+  padding-left: 1.2em;
+  font-size: var(--text-sm);
 }
 
 .check-item {
@@ -565,6 +572,13 @@ p {
   background: var(--color-surface-2);
   border: 1px solid var(--color-border);
   font-weight: 700;
+}
+
+.self-check,
+.self-tag,
+.report-bug {
+  display: grid;
+  gap: var(--space-2);
 }
 
 .tag-row {
@@ -801,6 +815,7 @@ select.input-answer {
   gap: var(--space-4);
 }
 
+
 @media (min-width: 800px) {
   .digest-grid {
     grid-template-columns: 1fr 1fr;
@@ -815,7 +830,7 @@ body.nav-open {
   overflow: hidden;
 }
 
-@media (max-width: 899px) {
+@media (max-width: 1128px) {
   .desktop-toolbar {
     display: none;
   }
