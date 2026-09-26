@@ -431,6 +431,49 @@ p {
   font-size: var(--text-sm);
 }
 
+.companion {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: var(--space-3);
+  align-items: center;
+  max-width: 28rem;
+}
+
+.companion-face {
+  width: 72px;
+  height: 72px;
+  display: block;
+}
+
+.companion.pop .companion-face {
+  animation: companion-pop 1.2s ease;
+}
+
+.companion-line {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.companion-line .eyebrow {
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+@keyframes companion-pop {
+  0% {
+    transform: scale(0.86);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 .exam-mode {
   outline: 2px solid color-mix(in srgb, var(--color-warning) 35%, transparent);
 }

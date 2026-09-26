@@ -1,4 +1,5 @@
 import { AppShell } from '@/components/AppShell';
+import { Companion } from '@/components/Companion';
 import { ReviewList } from '@/components/ReviewList';
 import { requireSession } from '@/lib/session';
 import { listAttempts } from '@/lib/store';
@@ -18,10 +19,11 @@ export default async function ReviewPage() {
       <section className="stack">
         <article className="panel empty-card">
           <div className="eyebrow">Разбор</div>
-          <h2>Как надо / как не надо</h2>
+          <h2>Где обычно едет / как держится</h2>
+          <Companion event={{ kind: 'idle' }} />
           <p>
-            Здесь не рейтинг. Ступор: {freeze}. Невнимание: {inattention}.
-            Если пусто или очень долго — это тоже сигнал, не лень.
+            Здесь не рейтинг. Лист смотрел первым: {freeze}. Глаза убежали:{' '}
+            {inattention}. Если пусто или очень долго — это тоже сигнал, не лень.
           </p>
         </article>
         <ReviewList

@@ -1,4 +1,5 @@
 import { looksLikeInattention } from './answers';
+import { TUTOR_TAG_LABELS } from './voice';
 import type { ErrorCode } from './types';
 
 export function inferErrorCodes(input: {
@@ -29,16 +30,19 @@ export function inferErrorCodes(input: {
 }
 
 export const SELF_TAG_OPTIONS: { code: ErrorCode; label: string }[] = [
-  { code: 'knowledge', label: 'Не поняла тему' },
-  { code: 'algorithm', label: 'Не знала ход' },
-  { code: 'inattention', label: 'Знак / не дочитала' },
-  { code: 'freeze', label: 'Страх / ступор' },
+  { code: 'knowledge', label: 'Тема ещё мутная' },
+  { code: 'algorithm', label: 'Не знала, с чего начать' },
+  { code: 'inattention', label: 'Глаза убежали' },
+  { code: 'freeze', label: 'Лист смотрел первым' },
 ];
 
 export const ERROR_TAG_OPTIONS: { code: ErrorCode; label: string }[] = [
-  ...SELF_TAG_OPTIONS,
-  { code: 'calculation', label: 'Счёт' },
-  { code: 'strategy', label: 'Стратегия' },
+  { code: 'knowledge', label: TUTOR_TAG_LABELS.knowledge },
+  { code: 'algorithm', label: TUTOR_TAG_LABELS.algorithm },
+  { code: 'inattention', label: TUTOR_TAG_LABELS.inattention },
+  { code: 'freeze', label: TUTOR_TAG_LABELS.freeze },
+  { code: 'calculation', label: TUTOR_TAG_LABELS.calculation },
+  { code: 'strategy', label: TUTOR_TAG_LABELS.strategy },
 ];
 
 export const SELF_CHECK_ID = 'ready';

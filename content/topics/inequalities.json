@@ -59,7 +59,7 @@
       "answer": "x>4",
       "kind": "practice",
       "explain_ok": "x > 4.",
-      "explain_trap": "Ошибка — написать x < 4 по привычке.",
+      "explain_trap": "По привычке легко написать x < 4.",
       "review_title": "Смотри в сторону знака",
       "time_sec": 45,
       "tags": [

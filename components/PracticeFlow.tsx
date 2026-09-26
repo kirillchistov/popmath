@@ -4,9 +4,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { postAttempt } from '@/lib/client-attempts';
+import type { CompanionEvent } from '@/lib/companion';
 import { needsNotebook, pickSitting } from '@/lib/focus';
 import { readTimerMode, timerSeconds, writeTimerMode } from '@/lib/timer';
+import { MEMORY_LABELS } from '@/lib/voice';
 import { BlankStart } from './BlankStart';
+import { Companion, useCompanionPop } from './Companion';
 import { GeoStart } from './GeoStart';
 import { PauseScreen } from './PauseScreen';
 import { SelfCheck, allChecksOn, toggleCheck } from './SelfCheck';
@@ -44,6 +47,11 @@ export function PracticeFlow({
   const [finished, setFinished] = useState(false);
   const [paused, setPaused] = useState(false);
   const [streak, setStreak] = useState(0);
+  const [wins, setWins] = useState(0);
+  const [afterMiss, setAfterMiss] = useState(false);
+  const [companionEvent, setCompanionEvent] = useState<CompanionEvent>({
+    kind: 'idle',
+  });
   const [checks, setChecks] = useState<string[]>([]);
   const [blankOpen, setBlankOpen] = useState(
     work.id !== 'word' && work.id !== 'geometry',
@@ -51,6 +59,7 @@ export function PracticeFlow({
   const [notebookDone, setNotebookDone] = useState(false);
   const [photo, setPhoto] = useState<File | null>(null);
   const timerArmed = useRef(false);
+  const pop = useCompanionPop(current?.id ?? null);
 
   const task = work.tasks[index];
   const notebook = needsNotebook(task);
@@ -95,6 +104,11 @@ export function PracticeFlow({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seconds, mode, current, finished, paused]);
 
+  useEffect(() => {
+    if (current) return;
+    setCompanionEvent({ kind: 'idle', checksOn: allChecksOn(checks) });
+  }, [checks, current, index]);
+
   const submit = async (value: string, timedOut: boolean, skipped: boolean) => {
     if (!task || busy || current) return;
     setBusy(true);
@@ -112,6 +126,15 @@ export function PracticeFlow({
         photo,
       });
       setCurrent(attempt);
+      const nextWins = attempt.correct ? wins + 1 : 0;
+      setCompanionEvent({
+        kind: 'result',
+        attempt,
+        correctStreak: nextWins,
+        afterMiss: attempt.correct && afterMiss,
+      });
+      setWins(nextWins);
+      setAfterMiss(!attempt.correct);
       const nextStreak = attempt.correct ? 0 : streak + 1;
       setStreak(nextStreak);
     } finally {
@@ -169,7 +192,8 @@ export function PracticeFlow({
       <article className="panel practice-card">
         <div className="eyebrow">Практика</div>
         <h2>Тема пройдена без спешки</h2>
-        <p>В разборе видно не только верно/неверно, но и ступор или невнимание.</p>
+        <Companion event={{ kind: 'idle' }} />
+        <p>В разборе видно, где ход держится, а где глаза убежали или лист смотрел первым.</p>
         <div className="hero-actions">
           <Link className="btn btn-primary" href="/review">
             К разбору
@@ -196,6 +220,7 @@ export function PracticeFlow({
           {mode !== 'off' ? <span className="timer">{formatTime(seconds)}</span> : null}
         </div>
       </div>
+      <Companion event={companionEvent} pop={pop} />
       <TimerModeSwitch mode={mode} onChange={changeMode} />
       {topicState === 'holds' && mode === 'off' ? (
         <div className="timer-suggest">
@@ -279,29 +304,18 @@ export function PracticeFlow({
       ) : (
         <>
           <div className={`feedback show ${current.correct ? 'ok' : 'bad'}`}>
-            <strong>{feedbackTitle(current)}</strong> {current.explain_ok}
-            {current.error_codes.length > 0 ? (
-              <span>
-                {' '}
-                Система видит:{' '}
-                {current.error_codes
-                  .map((code) =>
-                    code === 'freeze' ? 'ступор' : code === 'inattention' ? 'невнимание' : code,
-                  )
-                  .join(', ')}
-                .
-              </span>
-            ) : null}
+            <strong>{feedbackTitle(current)}</strong>{' '}
+            {current.correct ? current.explain_ok : null}
           </div>
           {!current.correct ? (
             <>
               <div className="memory-illustration">
                 <div className="memory-box bad">
-                  <div className="eyebrow">Как не надо</div>
+                  <div className="eyebrow">{MEMORY_LABELS.trap}</div>
                   <p>{current.explain_trap}</p>
                 </div>
                 <div className="memory-box good">
-                  <div className="eyebrow">Как надо</div>
+                  <div className="eyebrow">{MEMORY_LABELS.hold}</div>
                   <p>{current.explain_ok}</p>
                 </div>
               </div>
@@ -325,8 +339,8 @@ function feedbackTitle(attempt: Attempt) {
       ? 'Окно экзамена закрылось. Это тренировка, не приговор.'
       : 'Время вышло.';
   }
-  if (attempt.skipped) return 'Пропущено. Можно вернуться позже.';
-  return attempt.correct ? 'Верно.' : 'Есть ошибка.';
+  if (attempt.skipped) return 'Пропуск. Пустой лист — тоже ход.';
+  return attempt.correct ? 'Сошлось.' : 'Не сошлось.';
 }
 
 function formatTime(total: number) {

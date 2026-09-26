@@ -27,7 +27,7 @@ export function SelfTag({ attemptId }: SelfTagProps) {
   return (
     <div className="self-tag">
       <ReportBug attemptId={attemptId} />
-      <p className="eyebrow">Если ошибка моя — коротко</p>
+      <p className="eyebrow">Если срыв мой — коротко</p>
       <div className="tag-row">
         {SELF_TAG_OPTIONS.map((option) => (
           <button

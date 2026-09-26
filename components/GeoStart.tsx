@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Companion } from './Companion';
 
 const PLOTS = [
   {
@@ -52,13 +53,14 @@ export function GeoStart({ onOpen }: { onOpen: () => void }) {
     <article className="panel practice-card">
       <div className="question-head">
         <div>
-          <div className="eyebrow">Страх геометрии</div>
+          <div className="eyebrow">Сначала рисунок</div>
           <h2>Сначала 2 минуты на узнавание, не на счёт</h2>
         </div>
         <div className="badge">
           <span>{formatTime(seconds)}</span>
         </div>
       </div>
+      <Companion event={{ kind: 'idle' }} />
       <p>
         Геометрия пугает, пока это «19 номеров». Здесь несколько сюжетов: углы,
         треугольник, площадь, клетка, окружность. Посмотри рисунок и назови тип.

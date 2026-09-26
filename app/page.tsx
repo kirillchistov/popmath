@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { AppShell } from '@/components/AppShell';
+import { Companion } from '@/components/Companion';
 import { TheoryMarks } from '@/components/TheoryMarks';
 import { TopicList } from '@/components/TopicList';
 import { getLiveTopic, getLiveTopicsMeta } from '@/lib/live-content';
@@ -19,6 +20,9 @@ export default async function TodayPage() {
   return (
     <AppShell session={session} currentPath="/">
       <section className="stack">
+        <article className="panel empty-card">
+          <Companion event={{ kind: 'idle' }} />
+        </article>
         {plan.assigned_tasks.length > 0 ? (
           <article className="panel empty-card">
             <div className="eyebrow">От тьютора</div>
@@ -28,8 +32,8 @@ export default async function TodayPage() {
                 : `${plan.assigned_tasks.length} задачи в очереди`}
             </h2>
             <p>
-              {plan.assigned_tasks[0].topic_title}. Можно пропустить, если
-              ступор — это тоже ход.
+              {plan.assigned_tasks[0].topic_title}. Можно пропустить. Пустой лист
+              — тоже ход.
             </p>
             <ul className="week-list">
               {plan.assigned_tasks.map((item) => (

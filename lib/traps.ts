@@ -61,7 +61,7 @@ export const TRAP_ANSWERS: Record<string, string[]> = {
   'functions-10': ['(0;0)', '(4;0)', '4'],
   'functions-11': ['3', '2', '1'],
   'functions-12': ['y=x', 'y=x^2', 'y=x2'],
-  'quiz-01': ['1134', '1323', '980'],
+  'quiz-01': ['1134', '1587', '980'],
   'quiz-02': ['1,6', '1.6'],
   'quiz-04': ['17', '15'],
   'quiz-05': ['4', '18'],

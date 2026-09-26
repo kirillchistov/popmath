@@ -74,7 +74,7 @@
       "answer": "4",
       "kind": "practice",
       "explain_ok": "2x + 6 = 14, 2x = 8, x = 4.",
-      "explain_trap": "Нельзя делить 14 на 2 и забывать про +3.",
+      "explain_trap": "Если делить 14 на 2 и забыть про +3, ход едет.",
       "review_title": "Сначала раскрой скобки",
       "time_sec": 45,
       "tags": [

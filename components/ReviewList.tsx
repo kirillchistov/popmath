@@ -1,14 +1,6 @@
 import { TutorTag } from './TutorTag';
-import type { Attempt } from '@/lib/types';
-
-const tagLabels: Record<string, string> = {
-  knowledge: 'не поняла тему',
-  algorithm: 'не знала ход',
-  inattention: 'знак / не дочитала',
-  calculation: 'счёт',
-  freeze: 'страх / ступор',
-  strategy: 'стратегия',
-};
+import { MEMORY_LABELS, STUDENT_TAG_LABELS, TUTOR_TAG_LABELS } from '@/lib/voice';
+import type { Attempt, ErrorCode } from '@/lib/types';
 
 const modeLabels: Record<string, string> = {
   off: 'без таймера',
@@ -28,12 +20,20 @@ export function ReviewList({
   emptyText,
   showStudent = false,
   canEditTag = false,
+  audience = 'student',
 }: {
   attempts: Attempt[];
   emptyText: string;
   showStudent?: boolean;
   canEditTag?: boolean;
+  audience?: 'student' | 'tutor';
 }) {
+  const tags = audience === 'tutor' ? TUTOR_TAG_LABELS : STUDENT_TAG_LABELS;
+  const trapLabel = audience === 'tutor' ? 'Как не надо' : MEMORY_LABELS.trap;
+  const holdLabel = audience === 'tutor' ? 'Как надо' : MEMORY_LABELS.hold;
+  const okMark = audience === 'tutor' ? 'верно' : 'сошлось';
+  const missMark = audience === 'tutor' ? 'ошибка' : 'не сошлось';
+
   if (attempts.length === 0) {
     return (
       <article className="panel empty-card">
@@ -53,7 +53,7 @@ export function ReviewList({
             <div className="eyebrow">
               {showStudent ? `${item.student_id} · ` : ''}
               {item.review_title}
-              {item.correct ? ' · верно' : ' · ошибка'}
+              {item.correct ? ` · ${okMark}` : ` · ${missMark}`}
               {item.skipped ? ' · пропуск' : ''}
               {item.timed_out ? ' · время' : ''}
             </div>
@@ -72,18 +72,18 @@ export function ReviewList({
               {item.timer_mode ? ` · ${modeLabels[item.timer_mode] ?? item.timer_mode}` : ''}
               {item.self_checked ? ' · чеклист был' : ''}
               {codes.length > 0
-                ? ` · ${codes.map((code) => tagLabels[code] ?? code).join(', ')}`
+                ? ` · ${codes.map((code) => tags[code as ErrorCode] ?? code).join(', ')}`
                 : ''}
-              {item.self_tag ? ` · тег: ${tagLabels[item.self_tag] ?? item.self_tag}` : ''}
+              {item.self_tag ? ` · тег: ${tags[item.self_tag] ?? item.self_tag}` : ''}
             </p>
             {!item.correct ? (
               <div className="memory-illustration">
                 <div className="memory-box bad">
-                  <div className="eyebrow">Как не надо</div>
+                  <div className="eyebrow">{trapLabel}</div>
                   <p>{item.explain_trap}</p>
                 </div>
                 <div className="memory-box good">
-                  <div className="eyebrow">Как надо</div>
+                  <div className="eyebrow">{holdLabel}</div>
                   <p>{item.explain_ok}</p>
                 </div>
               </div>

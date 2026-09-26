@@ -58,6 +58,7 @@ export default async function TutorPage() {
           attempts={attempts}
           showStudent
           canEditTag
+          audience="tutor"
           emptyText="Пока никто не отвечал. Попросите ученика пройти квиз."
         />
       </section>

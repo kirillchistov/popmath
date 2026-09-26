@@ -1,8 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { postAttempt } from '@/lib/client-attempts';
+import type { CompanionEvent } from '@/lib/companion';
+import { Companion, useCompanionPop } from './Companion';
 import { SelfCheck, allChecksOn, toggleCheck } from './SelfCheck';
 import { SelfTag } from './SelfTag';
 import type { Attempt, Task } from '@/lib/types';
@@ -14,9 +16,21 @@ export function CheckFlow({ tasks }: { tasks: Task[] }) {
   const [current, setCurrent] = useState<Attempt | null>(null);
   const [busy, setBusy] = useState(false);
   const [finished, setFinished] = useState(false);
+  const [wins, setWins] = useState(0);
+  const [afterMiss, setAfterMiss] = useState(false);
+  const [companionEvent, setCompanionEvent] = useState<CompanionEvent>({
+    kind: 'idle',
+    checksOn: false,
+  });
+  const pop = useCompanionPop(current?.id ?? null);
 
   const task = tasks[index];
   const ready = allChecksOn(checks);
+
+  useEffect(() => {
+    if (current) return;
+    setCompanionEvent({ kind: 'idle', checksOn: ready });
+  }, [ready, current, index]);
 
   const submit = async (value: string, skipped: boolean) => {
     if (!task || busy || current) return;
@@ -32,6 +46,15 @@ export function CheckFlow({ tasks }: { tasks: Task[] }) {
         self_checked: ready,
       });
       setCurrent(attempt);
+      const nextWins = attempt.correct ? wins + 1 : 0;
+      setCompanionEvent({
+        kind: 'result',
+        attempt,
+        correctStreak: nextWins,
+        afterMiss: attempt.correct && afterMiss,
+      });
+      setWins(nextWins);
+      setAfterMiss(!attempt.correct);
     } finally {
       setBusy(false);
     }
@@ -53,6 +76,7 @@ export function CheckFlow({ tasks }: { tasks: Task[] }) {
       <article className="panel practice-card">
         <div className="eyebrow">Самопроверка</div>
         <h2>Мышца собрана</h2>
+        <Companion event={{ kind: 'idle', checksOn: true }} />
         <p>Это отдельный навык, не «просто соберись». Можно вернуться к сегодняшнему шагу.</p>
         <div className="hero-actions">
           <Link className="btn btn-primary" href="/">
@@ -72,6 +96,7 @@ export function CheckFlow({ tasks }: { tasks: Task[] }) {
         Самопроверка · {index + 1} / {tasks.length}
       </div>
       <h2>Сначала чеклист, потом ответ</h2>
+      <Companion event={companionEvent} pop={pop} />
       <p>Таймера нет. Задача знакомая специально: тренируем не тему, а привычку проверить.</p>
       <p className="prompt">{task.prompt}</p>
       <SelfCheck
@@ -105,8 +130,8 @@ export function CheckFlow({ tasks }: { tasks: Task[] }) {
       ) : (
         <>
           <div className={`feedback show ${current.correct ? 'ok' : 'bad'}`}>
-            <strong>{current.correct ? 'Верно.' : 'Есть ошибка.'}</strong>{' '}
-            {current.explain_ok}
+            <strong>{current.correct ? 'Сошлось.' : 'Не сошлось.'}</strong>{' '}
+            {current.correct ? current.explain_ok : null}
           </div>
           {!current.correct ? <SelfTag attemptId={current.id} /> : null}
           <div className="hero-actions">

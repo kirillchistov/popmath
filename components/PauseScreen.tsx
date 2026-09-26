@@ -1,5 +1,7 @@
 'use client';
 
+import { Companion } from './Companion';
+
 export function PauseScreen({
   onContinue,
   onCheck,
@@ -12,7 +14,8 @@ export function PauseScreen({
   return (
     <article className="panel practice-card">
       <div className="eyebrow">Пауза</div>
-      <h2>Три срыва подряд — не характер, а перегруз</h2>
+      <h2>Три раза не сошлось — не характер, а перегруз</h2>
+      <Companion event={{ kind: 'idle' }} />
       <p>
         Сейчас лучше не биться головой о ту же задачу. Можно переключиться на
         самопроверку или просто остановиться.

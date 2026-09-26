@@ -4,7 +4,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { postAttempt } from '@/lib/client-attempts';
+import type { CompanionEvent } from '@/lib/companion';
 import { readTimerMode, timerSeconds, writeTimerMode } from '@/lib/timer';
+import { MEMORY_LABELS } from '@/lib/voice';
+import { Companion, useCompanionPop } from './Companion';
 import { PauseScreen } from './PauseScreen';
 import { SelfTag } from './SelfTag';
 import { TimerModeSwitch } from './TimerModeSwitch';
@@ -26,7 +29,13 @@ export function QuizFlow({ questions }: QuizFlowProps) {
   const [busy, setBusy] = useState(false);
   const [paused, setPaused] = useState(false);
   const [streak, setStreak] = useState(0);
+  const [wins, setWins] = useState(0);
+  const [afterMiss, setAfterMiss] = useState(false);
+  const [companionEvent, setCompanionEvent] = useState<CompanionEvent>({
+    kind: 'idle',
+  });
   const timerArmed = useRef(false);
+  const pop = useCompanionPop(current?.id ?? null);
 
   const question = questions[index];
   const done = index >= questions.length;
@@ -84,6 +93,15 @@ export function QuizFlow({ questions }: QuizFlowProps) {
       });
       setCurrent(attempt);
       setAttempts((list) => [...list, attempt]);
+      const nextWins = attempt.correct ? wins + 1 : 0;
+      setCompanionEvent({
+        kind: 'result',
+        attempt,
+        correctStreak: nextWins,
+        afterMiss: attempt.correct && afterMiss,
+      });
+      setWins(nextWins);
+      setAfterMiss(!attempt.correct);
       setStreak(attempt.correct ? 0 : streak + 1);
     } finally {
       setBusy(false);
@@ -99,6 +117,7 @@ export function QuizFlow({ questions }: QuizFlowProps) {
     }
     setCurrent(null);
     setSelected('');
+    setCompanionEvent({ kind: 'idle' });
     setStartedAt(Date.now());
     setIndex((value) => value + 1);
   };
@@ -132,8 +151,10 @@ export function QuizFlow({ questions }: QuizFlowProps) {
       <article className="panel question-card">
         <div className="eyebrow">Квиз</div>
         <h2>Готово. {score} из {questions.length}</h2>
+        <Companion event={{ kind: 'idle' }} />
         <p>
-          Это не оценка личности. Ступор: {freeze}. Невнимание: {inattention}.
+          Это не оценка личности. Лист смотрел первым: {freeze}. Глаза убежали:{' '}
+          {inattention}.
         </p>
         <div className="hero-actions">
           <Link className="btn btn-primary" href="/">
@@ -164,6 +185,7 @@ export function QuizFlow({ questions }: QuizFlowProps) {
       <div className="progress" aria-hidden="true">
         <span style={{ width: `${(index / questions.length) * 100}%` }} />
       </div>
+      <Companion event={companionEvent} pop={pop} />
       <TimerModeSwitch mode={mode} onChange={changeMode} />
       <div className="pill-row">
         <span className="pill">{question.topic_label}</span>
@@ -216,22 +238,28 @@ export function QuizFlow({ questions }: QuizFlowProps) {
               {current.timed_out
                 ? 'Время вышло.'
                 : current.skipped
-                  ? 'Пропущено. Это ход, не провал.'
+                  ? 'Пропуск. Пустой лист — тоже ход.'
                   : current.correct
-                    ? 'Верно.'
-                    : 'Почти.'}
+                    ? 'Сошлось.'
+                    : 'Не сошлось.'}
             </strong>{' '}
-            Правильный ответ: {current.expected}. {current.explain_ok}
+            {current.correct ? (
+              <>
+                Ответ: {current.expected}. {current.explain_ok}
+              </>
+            ) : current.skipped ? null : (
+              <>Ответ: {current.expected}.</>
+            )}
           </div>
-          {!current.correct ? (
+          {!current.correct && !current.skipped ? (
             <>
               <div className="memory-illustration">
                 <div className="memory-box bad">
-                  <div className="eyebrow">Как не надо</div>
+                  <div className="eyebrow">{MEMORY_LABELS.trap}</div>
                   <p>{current.explain_trap}</p>
                 </div>
                 <div className="memory-box good">
-                  <div className="eyebrow">Как надо</div>
+                  <div className="eyebrow">{MEMORY_LABELS.hold}</div>
                   <p>{current.explain_ok}</p>
                 </div>
               </div>
