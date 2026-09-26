@@ -1,4 +1,4 @@
-.PHONY: help install env dev build start digest
+.PHONY: help install env dev build start digest check
 
 help:
 	@echo "make install  — поставить зависимости"
@@ -6,6 +6,7 @@ help:
 	@echo "make dev      — локальный сервер http://localhost:3000"
 	@echo "make build    — production-сборка"
 	@echo "make start    — запустить собранное приложение"
+	@echo "make check    — линтер, типы и JSON-контент (то же, что pre-commit)"
 	@echo "make digest   — собрать недельные ссылки для когорты (нужен CRON_SECRET)"
 
 install:
@@ -22,6 +23,9 @@ build:
 
 start:
 	npm start
+
+check:
+	npm run check
 
 digest:
 	@test -f .env.local || (echo "Нет .env.local" && exit 1)

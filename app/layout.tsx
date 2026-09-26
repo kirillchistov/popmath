@@ -4,7 +4,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Матешка — ОГЭ по математике',
-  description: 'Закрытый тренажёр для небольшой группы: короткие шаги, без стыда.',
+  description: 'Персональный ОГЭ-тренажёр по математике для небольшой группы: короткие шаги, без стыда и мучений.',
 };
 
 export const viewport: Viewport = {

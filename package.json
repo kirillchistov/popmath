@@ -6,7 +6,18 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix --max-warnings=0",
+    "typecheck": "tsc --noEmit --pretty false --incremental false",
+    "check:content": "node scripts/check-content.mjs",
+    "check": "npm run lint && npm run typecheck && npm run check:content",
+    "precommit": "lint-staged && npm run typecheck && npm run check:content",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,mjs}": [
+      "eslint --max-warnings=0"
+    ]
   },
   "dependencies": {
     "jose": "^6.0.11",
@@ -15,9 +26,14 @@
     "react-dom": "19.2.7"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.7",
     "@types/node": "^22.15.30",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^15.5.19",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
     "typescript": "^5.8.3"
   }
 }
