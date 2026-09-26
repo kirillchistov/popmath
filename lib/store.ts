@@ -1,25 +1,15 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import path from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { readJsonArray, writeJsonFile } from './json-store';
 import type { Attempt, AttemptDraft, ErrorCode } from './types';
 
-const STORE_PATH = path.join(process.cwd(), 'data', 'attempts.json');
+const FILE = 'attempts.json';
 
 async function readAll(): Promise<Attempt[]> {
-  try {
-    const raw = await readFile(STORE_PATH, 'utf8');
-    const parsed = JSON.parse(raw) as Attempt[];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (error) {
-    const code = (error as NodeJS.ErrnoException).code;
-    if (code === 'ENOENT') return [];
-    throw error;
-  }
+  return readJsonArray<Attempt>(FILE);
 }
 
 async function writeAll(attempts: Attempt[]): Promise<void> {
-  await mkdir(path.dirname(STORE_PATH), { recursive: true });
-  await writeFile(STORE_PATH, JSON.stringify(attempts, null, 2) + '\n', 'utf8');
+  await writeJsonFile(FILE, attempts);
 }
 
 export async function saveAttempt(draft: AttemptDraft): Promise<Attempt> {
@@ -29,9 +19,13 @@ export async function saveAttempt(draft: AttemptDraft): Promise<Attempt> {
     self_tag: draft.self_tag ?? null,
     created_at: new Date().toISOString(),
   };
-  const attempts = await readAll();
-  attempts.push(attempt);
-  await writeAll(attempts);
+  try {
+    const attempts = await readAll();
+    attempts.push(attempt);
+    await writeAll(attempts);
+  } catch (error) {
+    console.error('saveAttempt: не записали на диск', error);
+  }
   return attempt;
 }
 

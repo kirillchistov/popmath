@@ -28,6 +28,18 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  try {
+    return await createAttempt(request);
+  } catch (error) {
+    console.error('POST /api/attempts', error);
+    return NextResponse.json(
+      { error: 'Не удалось сохранить попытку' },
+      { status: 500 },
+    );
+  }
+}
+
+async function createAttempt(request: Request) {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

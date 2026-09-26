@@ -1,26 +1,16 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { randomBytes } from 'node:crypto';
-import path from 'node:path';
+import { readJsonArray, writeJsonFile } from './json-store';
 import type { DigestPayload, DigestRecord } from './types';
 
-const STORE_PATH = path.join(process.cwd(), 'data', 'digests.json');
+const FILE = 'digests.json';
 const TTL_DAYS = 14;
 
 async function readAll(): Promise<DigestRecord[]> {
-  try {
-    const raw = await readFile(STORE_PATH, 'utf8');
-    const parsed = JSON.parse(raw) as DigestRecord[];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (error) {
-    const code = (error as NodeJS.ErrnoException).code;
-    if (code === 'ENOENT') return [];
-    throw error;
-  }
+  return readJsonArray<DigestRecord>(FILE);
 }
 
 async function writeAll(items: DigestRecord[]): Promise<void> {
-  await mkdir(path.dirname(STORE_PATH), { recursive: true });
-  await writeFile(STORE_PATH, JSON.stringify(items, null, 2) + '\n', 'utf8');
+  await writeJsonFile(FILE, items);
 }
 
 export function isDigestAlive(item: DigestRecord, now = Date.now()): boolean {

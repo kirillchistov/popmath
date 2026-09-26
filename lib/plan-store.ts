@@ -1,8 +1,7 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import path from 'node:path';
+import { readJsonArray, writeJsonFile } from './json-store';
 import type { PlanOverride } from './types';
 
-const STORE_PATH = path.join(process.cwd(), 'data', 'plans.json');
+const FILE = 'plans.json';
 
 function normalize(plan: Partial<PlanOverride> & { student_id: string }): PlanOverride {
   return {
@@ -16,20 +15,14 @@ function normalize(plan: Partial<PlanOverride> & { student_id: string }): PlanOv
 }
 
 async function readAll(): Promise<PlanOverride[]> {
-  try {
-    const raw = await readFile(STORE_PATH, 'utf8');
-    const parsed = JSON.parse(raw) as PlanOverride[];
-    return Array.isArray(parsed) ? parsed.map(normalize) : [];
-  } catch (error) {
-    const code = (error as NodeJS.ErrnoException).code;
-    if (code === 'ENOENT') return [];
-    throw error;
-  }
+  const parsed = await readJsonArray<PlanOverride>(FILE);
+  return parsed.map((item) =>
+    normalize({ ...item, student_id: item.student_id }),
+  );
 }
 
 async function writeAll(plans: PlanOverride[]): Promise<void> {
-  await mkdir(path.dirname(STORE_PATH), { recursive: true });
-  await writeFile(STORE_PATH, JSON.stringify(plans, null, 2) + '\n', 'utf8');
+  await writeJsonFile(FILE, plans);
 }
 
 export async function getPlanOverride(

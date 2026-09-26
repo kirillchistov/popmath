@@ -1,7 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-
-const UPLOAD_DIR = path.join(process.cwd(), 'data', 'uploads');
+import { dataDir } from './json-store';
 
 const TYPES: Record<string, string> = {
   'image/jpeg': 'jpg',
@@ -15,6 +14,12 @@ export function photoExt(type: string): string | null {
   return TYPES[type] ?? null;
 }
 
+async function uploadDir(): Promise<string> {
+  const dir = path.join(await dataDir(), 'uploads');
+  await mkdir(dir, { recursive: true });
+  return dir;
+}
+
 export async function saveAttemptPhoto(
   attemptId: string,
   buffer: Buffer,
@@ -24,9 +29,9 @@ export async function saveAttemptPhoto(
   if (!ext) {
     throw new Error('Unsupported image');
   }
-  await mkdir(UPLOAD_DIR, { recursive: true });
+  const dir = await uploadDir();
   const fileName = `${attemptId}.${ext}`;
-  await writeFile(path.join(UPLOAD_DIR, fileName), buffer);
+  await writeFile(path.join(dir, fileName), buffer);
   return `/api/uploads/${fileName}`;
 }
 
@@ -41,7 +46,7 @@ export async function readAttemptPhoto(fileName: string): Promise<{
   const type =
     ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg';
   try {
-    const buffer = await readFile(path.join(UPLOAD_DIR, fileName));
+    const buffer = await readFile(path.join(await uploadDir(), fileName));
     return { buffer, type };
   } catch {
     return null;

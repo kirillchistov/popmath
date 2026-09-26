@@ -1,24 +1,14 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import path from 'node:path';
+import { readJsonArray, writeJsonFile } from './json-store';
 import type { TheoryMark, TheoryMarkKind } from './types';
 
-const STORE_PATH = path.join(process.cwd(), 'data', 'theory-marks.json');
+const FILE = 'theory-marks.json';
 
 async function readAll(): Promise<TheoryMark[]> {
-  try {
-    const raw = await readFile(STORE_PATH, 'utf8');
-    const parsed = JSON.parse(raw) as TheoryMark[];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (error) {
-    const code = (error as NodeJS.ErrnoException).code;
-    if (code === 'ENOENT') return [];
-    throw error;
-  }
+  return readJsonArray<TheoryMark>(FILE);
 }
 
 async function writeAll(items: TheoryMark[]): Promise<void> {
-  await mkdir(path.dirname(STORE_PATH), { recursive: true });
-  await writeFile(STORE_PATH, JSON.stringify(items, null, 2) + '\n', 'utf8');
+  await writeJsonFile(FILE, items);
 }
 
 export async function listTheoryMarks(studentId?: string): Promise<TheoryMark[]> {

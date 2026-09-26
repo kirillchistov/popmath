@@ -1,6 +1,5 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
-import path from 'node:path';
+import { readJsonArray, writeJsonFile } from './json-store';
 
 export interface TrainerReport {
   id: string;
@@ -14,23 +13,14 @@ export interface TrainerReport {
   created_at: string;
 }
 
-const STORE_PATH = path.join(process.cwd(), 'data', 'reports.json');
+const FILE = 'reports.json';
 
 async function readAll(): Promise<TrainerReport[]> {
-  try {
-    const raw = await readFile(STORE_PATH, 'utf8');
-    const parsed = JSON.parse(raw) as TrainerReport[];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (error) {
-    const code = (error as NodeJS.ErrnoException).code;
-    if (code === 'ENOENT') return [];
-    throw error;
-  }
+  return readJsonArray<TrainerReport>(FILE);
 }
 
 async function writeAll(items: TrainerReport[]): Promise<void> {
-  await mkdir(path.dirname(STORE_PATH), { recursive: true });
-  await writeFile(STORE_PATH, JSON.stringify(items, null, 2) + '\n', 'utf8');
+  await writeJsonFile(FILE, items);
 }
 
 export async function listReports(): Promise<TrainerReport[]> {

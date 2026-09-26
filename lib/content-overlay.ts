@@ -1,8 +1,7 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import path from 'node:path';
+import { readJsonObject, writeJsonFile } from './json-store';
 import type { Support, Task } from './types';
 
-const STORE_PATH = path.join(process.cwd(), 'data', 'content-overlay.json');
+const FILE = 'content-overlay.json';
 
 export interface OverlaySupport extends Support {
   id: string;
@@ -19,23 +18,18 @@ function emptyOverlay(): ContentOverlay {
 }
 
 export async function readOverlay(): Promise<ContentOverlay> {
-  try {
-    const raw = await readFile(STORE_PATH, 'utf8');
-    const parsed = JSON.parse(raw) as Partial<ContentOverlay>;
-    return {
-      tasks: Array.isArray(parsed.tasks) ? parsed.tasks : [],
-      supports: Array.isArray(parsed.supports) ? parsed.supports : [],
-    };
-  } catch (error) {
-    const code = (error as NodeJS.ErrnoException).code;
-    if (code === 'ENOENT') return emptyOverlay();
-    throw error;
-  }
+  const parsed = await readJsonObject<Partial<ContentOverlay>>(
+    FILE,
+    emptyOverlay(),
+  );
+  return {
+    tasks: Array.isArray(parsed.tasks) ? parsed.tasks : [],
+    supports: Array.isArray(parsed.supports) ? parsed.supports : [],
+  };
 }
 
 async function writeOverlay(overlay: ContentOverlay): Promise<void> {
-  await mkdir(path.dirname(STORE_PATH), { recursive: true });
-  await writeFile(STORE_PATH, JSON.stringify(overlay, null, 2) + '\n', 'utf8');
+  await writeJsonFile(FILE, overlay);
 }
 
 export async function addOverlayTask(task: Task): Promise<Task> {
