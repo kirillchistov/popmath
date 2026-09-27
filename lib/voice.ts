@@ -5,7 +5,7 @@ export const STUDENT_TAG_LABELS: Record<ErrorCode, string> = {
   algorithm: 'не знала, с чего начать',
   inattention: 'глаза убежали',
   calculation: 'счёт поехал',
-  freeze: 'лист смотрел первым',
+  freeze: 'пока пусто',
   strategy: 'сбился план',
 };
 

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { tagAttempt } from '@/lib/client-attempts';
 import { SELF_TAG_OPTIONS } from '@/lib/errors';
@@ -41,6 +42,11 @@ export function SelfTag({ attemptId }: SelfTagProps) {
           </button>
         ))}
       </div>
+      {chosen === 'calculation' ? (
+        <Link className="btn" href="/count">
+          Две минуты на счёт
+        </Link>
+      ) : null}
     </div>
   );
 }

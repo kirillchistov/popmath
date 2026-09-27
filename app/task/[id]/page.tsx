@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
 import { AppShell } from '@/components/AppShell';
-import { PracticeFlow } from '@/components/PracticeFlow';
-import { SupportCards } from '@/components/SupportCards';
+import { TopicWorkspace } from '@/components/TopicWorkspace';
 import { getLiveTask } from '@/lib/live-content';
 import { requireSession } from '@/lib/session';
 
@@ -25,8 +24,7 @@ export default async function AssignedTaskPage({ params }: TaskPageProps) {
           <h2>{found.topic.phrase}</h2>
           <p>Одна штука, не весь остров. Можно пропустить.</p>
         </article>
-        <SupportCards supports={found.topic.supports} />
-        <PracticeFlow topic={found.topic} onlyTaskId={found.task.id} />
+        <TopicWorkspace topic={found.topic} onlyTaskId={found.task.id} />
       </section>
     </AppShell>
   );

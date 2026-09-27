@@ -1,8 +1,7 @@
 import { notFound } from 'next/navigation';
 import { AppShell } from '@/components/AppShell';
-import { PracticeFlow } from '@/components/PracticeFlow';
-import { SupportCards } from '@/components/SupportCards';
 import { TheoryMarks } from '@/components/TheoryMarks';
+import { TopicWorkspace } from '@/components/TopicWorkspace';
 import { getLiveTopic } from '@/lib/live-content';
 import { todayISO } from '@/lib/plan';
 import { markOpenedNewTopic } from '@/lib/plan-store';
@@ -42,36 +41,15 @@ export default async function TopicPage({ params }: TopicPageProps) {
           <h2>{topic.title}</h2>
           <p className="prompt">{topic.phrase}</p>
           <p>{topic.metaphor}</p>
-          {isStudent && (topic.id === 'word' || topic.id === 'equations' || topic.id === 'geometry') ? (
-            <p>За заход 3–4 прототипа. Сначала тетрадь, без таймера.</p>
+          {isStudent &&
+          (topic.id === 'word' ||
+            topic.id === 'equations' ||
+            topic.id === 'geometry') ? (
+            <p>За заход 3–4 примера. Сначала решай в тетради.</p>
           ) : null}
-          <div className="algorithm">
-            <section>
-              <div className="eyebrow">Карточка-алгоритм</div>
-              <div className="steps">
-                {topic.steps.map((step) => (
-                  <div className="step" key={step}>
-                    <div>{step}</div>
-                  </div>
-                ))}
-              </div>
-            </section>
-            <section>
-              <div className="eyebrow">Ловушки</div>
-              <div className="stack" style={{ marginTop: '1rem' }}>
-                {topic.traps.map((trap) => (
-                  <div className="topic-card" key={trap}>
-                    <strong>{trap}</strong>
-                    <p>Поймай это место глазами до того, как начал считать.</p>
-                  </div>
-                ))}
-              </div>
-            </section>
-          </div>
         </article>
         {topic.id === 'geometry' ? <TheoryMarks /> : null}
-        <SupportCards supports={topic.supports} />
-        <PracticeFlow
+        <TopicWorkspace
           topic={topic}
           topicState={state}
           solvedIds={solvedIds}

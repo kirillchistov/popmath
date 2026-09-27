@@ -153,7 +153,7 @@ export function QuizFlow({ questions }: QuizFlowProps) {
         <h2>Готово. {score} из {questions.length}</h2>
         <Companion event={{ kind: 'idle' }} />
         <p>
-          Это не оценка личности. Лист смотрел первым: {freeze}. Глаза убежали:{' '}
+          Это не оценка личности. Пока пусто: {freeze}. Глаза убежали:{' '}
           {inattention}.
         </p>
         <div className="hero-actions">

@@ -11,6 +11,7 @@ export type CompanionMood =
 
 export type CompanionEvent =
   | { kind: 'idle'; checksOn?: boolean }
+  | { kind: 'nudge' }
   | {
       kind: 'result';
       attempt: Attempt;
@@ -48,7 +49,10 @@ export function pickCompanion(
   let mood: CompanionMood = 'wait';
   let pool = lines.wait;
 
-  if (event.kind === 'idle') {
+  if (event.kind === 'nudge') {
+    mood = 'calm';
+    pool = lines.nudge;
+  } else if (event.kind === 'idle') {
     if (event.checksOn) {
       mood = 'calm';
       pool = lines.check;

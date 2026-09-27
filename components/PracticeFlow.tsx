@@ -11,6 +11,8 @@ import { MEMORY_LABELS } from '@/lib/voice';
 import { BlankStart } from './BlankStart';
 import { Companion, useCompanionPop } from './Companion';
 import { GeoStart } from './GeoStart';
+import { NotebookPad, type NotebookPadHandle } from './NotebookPad';
+import { NotebookPhoto } from './NotebookPhoto';
 import { PauseScreen } from './PauseScreen';
 import { SelfCheck, allChecksOn, toggleCheck } from './SelfCheck';
 import { SelfTag } from './SelfTag';
@@ -23,12 +25,20 @@ export function PracticeFlow({
   topicState,
   solvedIds = [],
   limitSitting = false,
+  stuck = false,
+  engageNonce = 0,
+  onStuck,
+  onEngaged,
 }: {
   topic: Topic;
   onlyTaskId?: string;
   topicState?: TopicState;
   solvedIds?: string[];
   limitSitting?: boolean;
+  stuck?: boolean;
+  engageNonce?: number;
+  onStuck?: () => void;
+  onEngaged?: () => void;
 }) {
   const tasks = onlyTaskId
     ? topic.tasks.filter((item) => item.id === onlyTaskId)
@@ -58,7 +68,9 @@ export function PracticeFlow({
   );
   const [notebookDone, setNotebookDone] = useState(false);
   const [photo, setPhoto] = useState<File | null>(null);
+  const padRef = useRef<NotebookPadHandle>(null);
   const timerArmed = useRef(false);
+  const stuckArmed = useRef(false);
   const pop = useCompanionPop(current?.id ?? null);
 
   const task = work.tasks[index];
@@ -106,13 +118,52 @@ export function PracticeFlow({
 
   useEffect(() => {
     if (current) return;
+    if (stuck) {
+      setCompanionEvent({ kind: 'nudge' });
+      return;
+    }
     setCompanionEvent({ kind: 'idle', checksOn: allChecksOn(checks) });
-  }, [checks, current, index]);
+  }, [checks, current, index, stuck]);
+
+  useEffect(() => {
+    stuckArmed.current = false;
+  }, [index, engageNonce]);
+
+  useEffect(() => {
+    if (
+      !blankOpen ||
+      current ||
+      finished ||
+      paused ||
+      !task ||
+      stuckArmed.current
+    ) {
+      return undefined;
+    }
+    const waitMs = timerSeconds(task.time_sec ?? 45, 'exam') * 1000;
+    const timer = window.setTimeout(() => {
+      stuckArmed.current = true;
+      onStuck?.();
+    }, waitMs);
+    return () => window.clearTimeout(timer);
+  }, [
+    blankOpen,
+    current,
+    finished,
+    paused,
+    task,
+    engageNonce,
+    answer,
+    checks,
+    onStuck,
+  ]);
 
   const submit = async (value: string, timedOut: boolean, skipped: boolean) => {
     if (!task || busy || current) return;
     setBusy(true);
     try {
+      const padPhoto = photo ? null : await padRef.current?.exportIfDrawn();
+      const shot = photo ?? padPhoto ?? null;
       const attempt = await postAttempt({
         task_id: task.id,
         kind: 'practice',
@@ -122,8 +173,8 @@ export function PracticeFlow({
         skipped,
         timer_mode: mode,
         self_checked: allChecksOn(checks),
-        notebook_done: notebookDone,
-        photo,
+        notebook_done: notebookDone || Boolean(shot),
+        photo: shot,
       });
       setCurrent(attempt);
       const nextWins = attempt.correct ? wins + 1 : 0;
@@ -150,6 +201,7 @@ export function PracticeFlow({
       setChecks([]);
       setNotebookDone(false);
       setPhoto(null);
+      padRef.current?.reset();
       return;
     }
     if (index + 1 >= work.tasks.length) {
@@ -161,6 +213,7 @@ export function PracticeFlow({
     setChecks([]);
     setNotebookDone(false);
     setPhoto(null);
+    padRef.current?.reset();
     setStartedAt(Date.now());
     setIndex((value) => value + 1);
   };
@@ -193,7 +246,7 @@ export function PracticeFlow({
         <div className="eyebrow">Практика</div>
         <h2>Тема пройдена без спешки</h2>
         <Companion event={{ kind: 'idle' }} />
-        <p>В разборе видно, где ход держится, а где глаза убежали или лист смотрел первым.</p>
+        <p>В разборе видно, где ход держится, а где глаза убежали или пока было пусто.</p>
         <div className="hero-actions">
           <Link className="btn btn-primary" href="/review">
             К разбору
@@ -240,6 +293,16 @@ export function PracticeFlow({
         checked={checks}
         onToggle={(id) => setChecks((value) => toggleCheck(value, id))}
       />
+      {!current ? (
+        <NotebookPad
+          ref={padRef}
+          ruled={work.accent === 'geo' ? 'grid' : 'lined'}
+          onDraw={() => {
+            setNotebookDone(true);
+            onEngaged?.();
+          }}
+        />
+      ) : null}
       <div className="form-field" style={{ maxWidth: 420 }}>
         <label className="eyebrow" htmlFor="practice-answer">
           Твой ответ
@@ -249,7 +312,10 @@ export function PracticeFlow({
           className="input-answer"
           value={answer}
           disabled={Boolean(current)}
-          onChange={(event) => setAnswer(event.target.value)}
+          onChange={(event) => {
+            setAnswer(event.target.value);
+            if (event.target.value.trim()) onEngaged?.();
+          }}
           placeholder="Например: 4 или x = 4"
         />
       </div>
@@ -263,19 +329,7 @@ export function PracticeFlow({
             />
             <span>Посчитала в тетради, рукой, без калькулятора</span>
           </label>
-          <label className="form-field">
-            <span className="eyebrow">Фото тетради</span>
-            <input
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={(event) => setPhoto(event.target.files?.[0] ?? null)}
-            />
-            <span className="timer-hint">
-              {photo
-                ? photo.name
-                : 'Сними столбик или чертёж. Без фото «проверить» не откроется.'}
-            </span>
-          </label>
+          <NotebookPhoto photo={photo} onChange={setPhoto} />
         </div>
       ) : null}
       {!current ? (
@@ -283,11 +337,7 @@ export function PracticeFlow({
           <button
             className="btn btn-primary"
             type="button"
-            disabled={
-              busy ||
-              !answer.trim() ||
-              (notebook && (!notebookDone || !photo))
-            }
+            disabled={busy || !answer.trim() || (notebook && !notebookDone)}
             onClick={() => submit(answer, false, false)}
           >
             Проверить

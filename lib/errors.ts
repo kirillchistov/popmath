@@ -33,7 +33,8 @@ export const SELF_TAG_OPTIONS: { code: ErrorCode; label: string }[] = [
   { code: 'knowledge', label: 'Тема ещё мутная' },
   { code: 'algorithm', label: 'Не знала, с чего начать' },
   { code: 'inattention', label: 'Глаза убежали' },
-  { code: 'freeze', label: 'Лист смотрел первым' },
+  { code: 'calculation', label: 'Счёт поехал' },
+  { code: 'freeze', label: 'Пока пусто' },
 ];
 
 export const ERROR_TAG_OPTIONS: { code: ErrorCode; label: string }[] = [

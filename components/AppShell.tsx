@@ -8,6 +8,7 @@ const studentLinks = [
   { href: '/task', label: 'Темы' },
   { href: '/review', label: 'Разбор' },
   { href: '/check', label: 'Проверка' },
+  { href: '/count', label: 'Счёт' },
   { href: '/map', label: 'Карта' },
 ];
 

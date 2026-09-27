@@ -23,7 +23,8 @@
     "jose": "^6.0.11",
     "next": "15.5.19",
     "react": "19.2.7",
-    "react-dom": "19.2.7"
+    "react-dom": "19.2.7",
+    "react-sketch-canvas": "^8.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.7",

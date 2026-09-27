@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { AppShell } from '@/components/AppShell';
 import { Companion } from '@/components/Companion';
 import { ReviewList } from '@/components/ReviewList';
@@ -13,6 +14,10 @@ export default async function ReviewPage() {
   const inattention = attempts.filter((item) =>
     item.error_codes?.includes('inattention'),
   ).length;
+  const calculation = attempts.filter(
+    (item) =>
+      item.self_tag === 'calculation' || item.error_codes?.includes('calculation'),
+  ).length;
 
   return (
     <AppShell session={session} currentPath="/review">
@@ -22,9 +27,17 @@ export default async function ReviewPage() {
           <h2>Где обычно едет / как держится</h2>
           <Companion event={{ kind: 'idle' }} />
           <p>
-            Здесь не рейтинг. Лист смотрел первым: {freeze}. Глаза убежали:{' '}
-            {inattention}. Если пусто или очень долго — это тоже сигнал, не лень.
+            Здесь не рейтинг. Пока пусто: {freeze}. Глаза убежали:{' '}
+            {inattention}. Счёт поехал: {calculation}. Если пусто или очень
+            долго — это тоже сигнал, не лень.
           </p>
+          {calculation > 0 ? (
+            <div className="hero-actions">
+              <Link className="btn" href="/count">
+                Короткий счёт, не новая тема
+              </Link>
+            </div>
+          ) : null}
         </article>
         <ReviewList
           attempts={attempts}
