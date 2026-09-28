@@ -88,6 +88,9 @@ export default async function TodayPage() {
               <Link className="btn btn-primary" href={`/topic/${todayTopic.id}`}>
                 Начать этот шаг
               </Link>
+              <Link className="btn" href={`/homework?topic=${todayTopic.id}`}>
+                Помощь с ДЗ
+              </Link>
               <Link className="btn" href="/map">
                 Смотреть карту
               </Link>
