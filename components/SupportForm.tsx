@@ -44,7 +44,11 @@ export function SupportForm({ topics }: { topics: TopicMeta[] }) {
     <article className="panel section-card">
       <div className="eyebrow">Опора</div>
       <h2>3–5 шагов, метафора, якорь</h2>
-      <p>Короткая карточка, не конспект. Один якорь, который можно поймать глазами.</p>
+      <p>
+        Короткая карточка, не конспект. Ученик увидит её в опорах темы — перед
+        практикой, не на «Сегодня». На «Сегодня» всплывает только задача,
+        посаженная в очередь.
+      </p>
       <form className="tutor-form" onSubmit={submit}>
         <label className="field">
           <span className="eyebrow">Тема</span>

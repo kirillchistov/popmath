@@ -24,33 +24,31 @@ export default async function TodayPage() {
           <Companion event={{ kind: 'idle' }} />
         </article>
         {plan.assigned_tasks.length > 0 ? (
-          <article className="panel empty-card">
-            <div className="eyebrow">От тьютора</div>
+          <article className="panel empty-card from-tutor">
+            <div className="eyebrow">От тьютора · не карта и не тема дня</div>
             <h2>
               {plan.assigned_tasks.length === 1
-                ? 'Одна задача, не весь остров'
-                : `${plan.assigned_tasks.length} задачи в очереди`}
+                ? 'Задача с урока'
+                : `${plan.assigned_tasks.length} задачи с урока`}
             </h2>
             <p>
-              {plan.assigned_tasks[0].topic_title}. Можно пропустить. Пустой лист
-              — тоже ход.
+              Это не весь остров. Тьютор положила конкретную штуку сюда, на
+              «Сегодня». Можно пропустить. Пустой лист — тоже ход.
             </p>
-            <ul className="week-list">
+            <ul className="week-list from-tutor-list">
               {plan.assigned_tasks.map((item) => (
                 <li key={item.task.id}>
                   <strong>{item.task.prompt}</strong>
-                  <p>{item.task.review_title}</p>
+                  <p>
+                    {item.topic_title}
+                    {item.task.review_title ? ` · ${item.task.review_title}` : ''}
+                  </p>
+                  <Link className="btn btn-primary" href={`/task/${item.task.id}`}>
+                    Открыть эту
+                  </Link>
                 </li>
               ))}
             </ul>
-            <div className="hero-actions">
-              <Link
-                className="btn btn-primary"
-                href={`/task/${plan.assigned_tasks[0].task.id}`}
-              >
-                Начать эту задачу
-              </Link>
-            </div>
           </article>
         ) : null}
 

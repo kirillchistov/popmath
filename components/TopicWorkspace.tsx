@@ -21,17 +21,20 @@ export function TopicWorkspace({
   const [pulse, setPulse] = useState(0);
   const [stuck, setStuck] = useState(false);
   const [engageNonce, setEngageNonce] = useState(0);
+  const [exam, setExam] = useState(false);
 
   return (
     <>
-      <TopicAids
-        topic={topic}
-        pulse={pulse}
-        onOpen={() => {
-          setStuck(false);
-          setEngageNonce((value) => value + 1);
-        }}
-      />
+      {exam ? null : (
+        <TopicAids
+          topic={topic}
+          pulse={pulse}
+          onOpen={() => {
+            setStuck(false);
+            setEngageNonce((value) => value + 1);
+          }}
+        />
+      )}
       <PracticeFlow
         topic={topic}
         topicState={topicState}
@@ -40,6 +43,7 @@ export function TopicWorkspace({
         onlyTaskId={onlyTaskId}
         stuck={stuck}
         engageNonce={engageNonce}
+        onModeChange={(mode) => setExam(mode === 'exam')}
         onStuck={() => {
           setStuck(true);
           setPulse((value) => value + 1);

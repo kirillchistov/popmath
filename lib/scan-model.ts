@@ -70,16 +70,20 @@ JSON:
 Если не хватает чертежа — не выдумывай длины. Напиши это в steps.`;
 }
 
-function reviewPrompt(text: string, topic?: ScanTopicHint) {
+function reviewPrompt(text: string, workText: string, topic?: ScanTopicHint) {
+  const workBlock = workText.trim()
+    ? `\nХод ученицы текстом:\n"""\n${workText.trim()}\n"""\n`
+    : '';
   return `${VOICE}
 
 Условие:
 """
 ${text}
 """
-${topicBlock(topic)}
+${workBlock}${topicBlock(topic)}
 
-Второе изображение — фото хода ученицы. Смотри как на картинку. Не пытайся идеально оцифровать почерк.
+Если есть фото хода — смотри как на картинку. Не пытайся идеально оцифровать почерк.
+Текст хода, если есть, можно читать напрямую.
 Не ставь школьную оценку. Если ход выглядит верным — error_code: "none".
 error_code только из списка: knowledge, algorithm, inattention, calculation, freeze, strategy, none.
 
@@ -102,20 +106,40 @@ JSON:
 support можно опустить, если достаточно next_step.`;
 }
 
-function userParts(
+function responseInput(
   text: string,
   images: { url: string; label: string }[],
-): Array<
-  { type: 'text'; text: string } | { type: 'image_url'; image_url: { url: string } }
-> {
-  const parts: Array<
-    { type: 'text'; text: string } | { type: 'image_url'; image_url: { url: string } }
-  > = [{ type: 'text', text }];
+) {
+  if (images.length === 0) return text;
+  const content: Array<Record<string, unknown>> = [
+    { type: 'input_text', text },
+  ];
   for (const image of images) {
-    parts.push({ type: 'text', text: image.label });
-    parts.push({ type: 'image_url', image_url: { url: image.url } });
+    content.push({ type: 'input_text', text: image.label });
+    content.push({ type: 'input_image', image_url: image.url });
   }
-  return parts;
+  return [{ role: 'user', content }];
+}
+
+function responseText(payload: Record<string, unknown>): string {
+  if (typeof payload.output_text === 'string' && payload.output_text.trim()) {
+    return payload.output_text;
+  }
+  const output = payload.output;
+  if (!Array.isArray(output)) return '';
+  const chunks: string[] = [];
+  for (const item of output) {
+    if (!item || typeof item !== 'object') continue;
+    const row = item as Record<string, unknown>;
+    if (typeof row.text === 'string') chunks.push(row.text);
+    if (!Array.isArray(row.content)) continue;
+    for (const part of row.content) {
+      if (!part || typeof part !== 'object') continue;
+      const block = part as Record<string, unknown>;
+      if (typeof block.text === 'string') chunks.push(block.text);
+    }
+  }
+  return chunks.join('\n');
 }
 
 export async function fileToDataUrl(file: File): Promise<string> {
@@ -154,22 +178,75 @@ function asSupport(value: unknown): Support | undefined {
   };
 }
 
+const YANDEX_RESPONSES_URL = 'https://ai.api.cloud.yandex.net/v1/responses';
+const DEFAULT_TEXT_MODEL = 'deepseek-v4.1-flash/latest';
+const DEFAULT_VISION_MODEL = 'qwen3.6-35b-a3b/latest';
+
+function yandexKey() {
+  return (
+    process.env.YANDEX_API_KEY?.trim() ||
+    process.env.YANDEXAI_API_KEY?.trim() ||
+    ''
+  );
+}
+
+function yandexFolder() {
+  return process.env.YANDEX_FOLDER_ID?.trim() || '';
+}
+
+function modelUri(raw: string, folder: string) {
+  const value = raw.trim();
+  if (!value) return '';
+  if (value.includes('://')) {
+    return value.replace(/^gpt:\/\/[^/]+/, `gpt://${folder}`);
+  }
+  return `gpt://${folder}/${value.replace(/^\/+/, '')}`;
+}
+
 export function scanModelReady() {
-  return Boolean(process.env.OPENAI_API_KEY?.trim());
+  return Boolean(yandexKey() && yandexFolder());
+}
+
+function emptyScanMessage(
+  useVision: boolean,
+  mode: ScanMode,
+  workImage: boolean,
+) {
+  if (useVision && (mode === 'read' || workImage)) {
+    return workImage && mode !== 'read'
+      ? 'Извини — фото хода не разобрала. Набери шаги здесь или распознай в Алисе.'
+      : 'Извини — фото не разобрала. Впиши условие руками или распознай в Алисе.';
+  }
+  return 'Модель промолчала. Можно опереться на шаги темы или набрать текст руками.';
+}
+
+function extractError(payload: unknown, fallback: string) {
+  if (!payload || typeof payload !== 'object') return fallback;
+  const data = payload as Record<string, unknown>;
+  if (typeof data.error === 'string' && data.error.trim()) return data.error;
+  if (data.error && typeof data.error === 'object') {
+    const nested = data.error as Record<string, unknown>;
+    if (typeof nested.message === 'string' && nested.message.trim()) {
+      return nested.message;
+    }
+  }
+  if (typeof data.message === 'string' && data.message.trim()) return data.message;
+  return fallback;
 }
 
 export async function runScan(input: {
   mode: ScanMode;
   prompt?: string;
+  workText?: string;
   topic?: ScanTopicHint;
   problemImage?: File | null;
   workImage?: File | null;
 }): Promise<ScanReadResult | ScanAlgoResult | ScanReviewResult> {
-  const key = process.env.OPENAI_API_KEY?.trim();
-  if (!key) {
-    throw new Error('Нет ключа модели. Тьютор добавит OPENAI_API_KEY.');
+  const key = yandexKey();
+  const folder = yandexFolder();
+  if (!key || !folder) {
+    throw new Error('Нет ключа модели. Тьютор добавит ключ Яндекс AI Studio.');
   }
-  const model = process.env.OPENAI_MODEL?.trim() || 'gpt-4o-mini';
   const images: { url: string; label: string }[] = [];
   if (input.problemImage) {
     images.push({
@@ -184,42 +261,51 @@ export async function runScan(input: {
     });
   }
 
+  const useVision = images.length > 0;
+  const model = modelUri(
+    useVision
+      ? process.env.YANDEX_VISION_MODEL?.trim() || DEFAULT_VISION_MODEL
+      : process.env.YANDEX_MODEL?.trim() || DEFAULT_TEXT_MODEL,
+    folder,
+  );
+
   let text = '';
   if (input.mode === 'read') text = readPrompt(input.topic);
   if (input.mode === 'algo') text = algoPrompt(input.prompt ?? '', input.topic);
-  if (input.mode === 'review') text = reviewPrompt(input.prompt ?? '', input.topic);
+  if (input.mode === 'review') {
+    text = reviewPrompt(input.prompt ?? '', input.workText ?? '', input.topic);
+  }
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  const body: Record<string, unknown> = {
+    model,
+    instructions: 'Отвечай ТОЛЬКО JSON без markdown и без обёртки ```.',
+    input: responseInput(text, useVision ? images : []),
+    temperature: 0.2,
+    max_output_tokens: 2500,
+  };
+
+  const response = await fetch(YANDEX_RESPONSES_URL, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${key}`,
+      Authorization: `Api-Key ${key}`,
       'Content-Type': 'application/json',
+      'OpenAI-Project': folder,
     },
-    body: JSON.stringify({
-      model,
-      temperature: 0.2,
-      response_format: { type: 'json_object' },
-      messages: [
-        {
-          role: 'user',
-          content: userParts(text, images),
-        },
-      ],
-    }),
+    body: JSON.stringify(body),
   });
-  const payload = (await response.json()) as {
-    error?: { message?: string };
-    choices?: Array<{ message?: { content?: string } }>;
-  };
+  const payload = (await response.json()) as Record<string, unknown>;
   if (!response.ok) {
-    throw new Error(payload.error?.message ?? 'Модель не ответила');
+    throw new Error(extractError(payload, 'Модель не ответила'));
   }
-  const content = payload.choices?.[0]?.message?.content ?? '';
+  const content = responseText(payload);
+  if (!content.trim()) {
+    throw new Error(emptyScanMessage(useVision, input.mode, Boolean(input.workImage)));
+  }
   let parsed: Record<string, unknown>;
   try {
     parsed = parseJson(content) as Record<string, unknown>;
   } catch {
-    throw new Error('Модель вернула не JSON. Попробуй ещё раз.');
+    throw new Error(emptyScanMessage(useVision, input.mode, Boolean(input.workImage)));
   }
 
   if (input.mode === 'read') {

@@ -32,7 +32,7 @@ export async function POST(request: Request) {
   }
   if (!scanModelReady()) {
     return NextResponse.json(
-      { error: 'Нет ключа модели. Тьютор добавит OPENAI_API_KEY.' },
+      { error: 'Нет ключа модели. Тьютор добавит ключ Яндекс AI Studio.' },
       { status: 503 },
     );
   }
@@ -50,6 +50,7 @@ export async function POST(request: Request) {
   }
 
   const prompt = String(form.get('prompt') ?? '').trim();
+  const workText = String(form.get('work_text') ?? '').trim();
   const topicId = String(form.get('topic_id') ?? '').trim();
   const problemImage = takeFile(form.get('image'));
   const workImage = takeFile(form.get('work'));
@@ -70,9 +71,9 @@ export async function POST(request: Request) {
   if (mode === 'algo' && !prompt) {
     return NextResponse.json({ error: 'Сначала текст условия' }, { status: 400 });
   }
-  if (mode === 'review' && (!prompt || !workImage)) {
+  if (mode === 'review' && (!prompt || (!workImage && !workText))) {
     return NextResponse.json(
-      { error: 'Нужны текст условия и фото хода' },
+      { error: 'Нужны текст условия и ход — текстом или фото' },
       { status: 400 },
     );
   }
@@ -95,6 +96,7 @@ export async function POST(request: Request) {
     const result = await runScan({
       mode,
       prompt,
+      workText,
       topic,
       problemImage,
       workImage,

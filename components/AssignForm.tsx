@@ -64,7 +64,11 @@ export function AssignForm({
     <article className="panel section-card">
       <div className="eyebrow">Очередь ученику</div>
       <h2>Посадить конкретную задачу</h2>
-      <p>Не тему целиком, а одну штуку. Она всплывёт на «Сегодня», пока не решится верно.</p>
+      <p>
+        Не тему целиком, а одну штуку. Она всплывёт на «Сегодня» отдельной
+        карточкой «От тьютора», пока не решится верно. Здесь список выданных
+        виден ниже.
+      </p>
       <form className="tutor-form" onSubmit={submit}>
         <label className="field">
           <span className="eyebrow">Ученик</span>

@@ -1128,15 +1128,60 @@ body.nav-open {
 }
 
 .homework-crop {
-  position: relative;
-  height: min(58vh, 420px);
+  padding: 0.75rem;
+  max-height: min(78vh, 720px);
+  overflow: auto;
   border-radius: var(--radius-md);
-  overflow: hidden;
   background: #1d1b19;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.homework-crop .ReactCrop {
+  max-width: 100%;
+  flex-shrink: 0;
+}
+
+.homework-crop .ReactCrop,
+.homework-crop .ReactCrop__child-wrapper,
+.homework-crop .ReactCrop__child-wrapper > img {
+  max-height: none;
+}
+
+.homework-crop .ReactCrop__child-wrapper > img {
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  display: block;
 }
 
 .homework-prompt {
-  min-height: 8rem;
+  min-height: 6.5rem;
+}
+
+.math-kbd {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+
+.math-key {
+  min-height: 44px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.math-key:active:not(:disabled) {
+  background: var(--color-surface);
+}
+
+.math-key:disabled {
+  opacity: 0.5;
 }
 
 .photo-pick {
@@ -1174,6 +1219,83 @@ body.nav-open {
   .photo-camera {
     display: inline-flex;
   }
+}
+
+.alice-hint {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+}
+
+.alice-hint .btn {
+  width: auto;
+  justify-self: start;
+}
+
+.work-steps {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+  list-style: none;
+  counter-reset: work-step;
+}
+
+.work-steps li {
+  counter-increment: work-step;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-2);
+  align-items: start;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.work-steps li span::before {
+  content: counter(work-step) '. ';
+  color: var(--color-text-muted);
+}
+
+.work-steps .btn {
+  width: auto;
+}
+
+.algo-hint-block {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.algo-hint-block > .btn {
+  width: auto;
+  justify-self: start;
+}
+
+.from-tutor {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-2), var(--shadow-sm);
+}
+
+.from-tutor .eyebrow {
+  color: var(--color-primary);
+}
+
+.from-tutor-list li {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--color-primary);
+  background: var(--color-primary-2);
+}
+
+.from-tutor-list .btn {
+  width: auto;
+  justify-self: start;
 }
 
 .timer-suggest {

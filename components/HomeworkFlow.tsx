@@ -9,11 +9,14 @@ import type {
   ScanTopicHint,
 } from '@/lib/scan';
 import type { ErrorCode } from '@/lib/types';
+import { AliceHint } from './AliceHint';
 import { Companion } from './Companion';
 import { HomeworkCrop } from './HomeworkCrop';
+import { MathKeyboard } from './MathKeyboard';
 import { SupportBlock } from './TopicAids';
+import { WorkSteps } from './WorkSteps';
 
-type Stage = 'pick' | 'crop' | 'text' | 'work-crop';
+type Stage = 'pick' | 'crop' | 'text';
 type CropKind = 'problem' | 'work';
 
 export function HomeworkFlow({
@@ -25,6 +28,8 @@ export function HomeworkFlow({
 }) {
   const galleryRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
+  const promptRef = useRef<HTMLTextAreaElement>(null);
+  const workRef = useRef<HTMLTextAreaElement>(null);
   const [ready, setReady] = useState<boolean | null>(null);
   const [topicId, setTopicId] = useState(initialTopicId);
   const [stage, setStage] = useState<Stage>('pick');
@@ -33,7 +38,12 @@ export function HomeworkFlow({
   const [problemBlob, setProblemBlob] = useState<Blob | null>(null);
   const [workBlob, setWorkBlob] = useState<Blob | null>(null);
   const [prompt, setPrompt] = useState('');
+  const [workSteps, setWorkSteps] = useState<string[]>([]);
+  const [draft, setDraft] = useState('');
+  const [kbd, setKbd] = useState(0);
   const [note, setNote] = useState('');
+  const [aliceKind, setAliceKind] = useState<'problem' | 'work' | null>(null);
+  const [showHint, setShowHint] = useState(false);
   const [algo, setAlgo] = useState<ScanAlgoResult | null>(null);
   const [review, setReview] = useState<ScanReviewResult | null>(null);
   const [showAnswer, setShowAnswer] = useState(false);
@@ -65,18 +75,30 @@ export function HomeworkFlow({
     if (cameraRef.current) cameraRef.current.value = '';
   };
 
+  const workText = [...workSteps, draft]
+    .map((step) => step.trim())
+    .filter(Boolean)
+    .join('\n');
+  const topicHint = topics.find((item) => item.id === topicId);
+
   const callScan = async <T,>(
     mode: 'read' | 'algo' | 'review',
-    extra?: { image?: Blob | null; work?: Blob | null; text?: string },
+    extra?: {
+      image?: Blob | null;
+      work?: Blob | null;
+      text?: string;
+      workText?: string;
+    },
   ): Promise<T> => {
     const body = new FormData();
     body.append('mode', mode);
     body.append('prompt', extra?.text ?? prompt);
+    body.append('work_text', extra?.workText ?? workText);
     if (topicId) body.append('topic_id', topicId);
-    const image = extra?.image ?? problemBlob;
-    const work = extra?.work ?? workBlob;
-    if (image) body.append('image', image, 'problem.jpg');
-    if (work) body.append('work', work, 'work.jpg');
+    if (mode === 'read') {
+      const image = extra?.image ?? problemBlob;
+      if (image) body.append('image', image, 'problem.jpg');
+    }
     const response = await fetch('/api/scan', { method: 'POST', body });
     const data = (await response.json()) as T & { error?: string };
     if (!response.ok) throw new Error(data.error ?? 'Не удалось разобрать');
@@ -87,31 +109,31 @@ export function HomeworkFlow({
     if (cropKind === 'work') {
       setWorkBlob(blob);
       setStage('text');
-      setBusy(true);
-      setError('');
-      try {
-        const data = await callScan<ScanReviewResult>('review', { work: blob });
-        setReview(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Ошибка');
-      } finally {
-        setBusy(false);
-      }
+      setAliceKind('work');
+      setNote(
+        'Фото хода оставила как запас. Набери шаги текстом — так надёжнее, чем ждать разбор картинки.',
+      );
       return;
     }
     setProblemBlob(blob);
     setStage('text');
     setBusy(true);
     setError('');
+    setAliceKind(null);
     try {
       const data = await callScan<ScanReadResult>('read', { image: blob });
       setPrompt(data.prompt);
-      setNote(
-        data.readable
-          ? 'Проверь текст. Потом алгоритм или фото хода.'
-          : data.note || 'Не разобрала. Напиши условие сама.',
-      );
+      if (!data.readable || !data.prompt.trim()) {
+        setAliceKind('problem');
+        setNote(
+          data.note ||
+            'Не разобрала. Напиши условие сама — можно с клавиатуры или из Алисы.',
+        );
+        return;
+      }
+      setNote('Проверь текст. Потом алгоритм или свой ход по шагам.');
     } catch (err) {
+      setAliceKind('problem');
       setError(err instanceof Error ? err.message : 'Ошибка');
       setNote('Можно вписать условие руками.');
     } finally {
@@ -121,14 +143,40 @@ export function HomeworkFlow({
 
   const requestAlgo = async () => {
     if (!prompt.trim() || busy) return;
+    setShowHint(true);
+    setShowAnswer(false);
     setBusy(true);
     setError('');
-    setShowAnswer(false);
     try {
       const data = await callScan<ScanAlgoResult>('algo');
       setAlgo(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Ошибка');
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Модель промолчала. Шаги темы выше — можно опереться на них.',
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const requestReview = async () => {
+    if (!prompt.trim() || busy) return;
+    if (!workText.trim()) {
+      setAliceKind('work');
+      setNote('Набери шаги текстом — фото хода модель сейчас не читает.');
+      return;
+    }
+    setBusy(true);
+    setError('');
+    try {
+      const data = await callScan<ScanReviewResult>('review');
+      setReview(data);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Ошибка';
+      setError(message);
+      setAliceKind('work');
     } finally {
       setBusy(false);
     }
@@ -140,7 +188,12 @@ export function HomeworkFlow({
     setProblemBlob(null);
     setWorkBlob(null);
     setPrompt('');
+    setWorkSteps([]);
+    setDraft('');
+    setKbd(0);
     setNote('');
+    setAliceKind(null);
+    setShowHint(false);
     setAlgo(null);
     setReview(null);
     setShowAnswer(false);
@@ -162,11 +215,11 @@ export function HomeworkFlow({
         <h2>Помощь с ДЗ по теме</h2>
         <Companion event={{ kind: 'idle' }} />
         <p>
-          Не зачёт и не банк. Обрежь один номер, поправь текст, возьми ход.
-          Фото уходит к модели и не пишется в попытки.
+          Не зачёт и не банк. Набери условие и ход по шагам. Фото можно, но
+          модель часто молчит — тогда Алиса или руки.
         </p>
         {ready === false ? (
-          <p>Ключа модели пока нет. Тьютор добавит OPENAI_API_KEY — и можно фото.</p>
+          <p>Ключа модели пока нет. Тьютор добавит ключ Яндекс AI Studio — и можно фото.</p>
         ) : null}
         <label className="field">
           <span className="eyebrow">Тема, если понятно</span>
@@ -205,10 +258,26 @@ export function HomeworkFlow({
       {stage === 'pick' ? (
         <article className="panel practice-card">
           <div className="eyebrow">Страница</div>
-          <h3>Фото из учебника или тетради</h3>
+          <h3>Сначала текст</h3>
+          <p>
+            Клавиатура и шаги надёжнее фото. Если есть снимок — можно
+            распознать в Алисе и вставить сюда.
+          </p>
           <div className="photo-actions">
             <button
               className="btn btn-primary"
+              type="button"
+              onClick={() => {
+                setStage('text');
+                setNote(
+                  'Напиши условие. Ход — по шагам. Алгоритм можно просить в любой момент.',
+                );
+              }}
+            >
+              Напишу сама
+            </button>
+            <button
+              className="btn"
               type="button"
               onClick={() => {
                 setCropKind('problem');
@@ -227,16 +296,14 @@ export function HomeworkFlow({
             >
               Снять
             </button>
-            <button
+            <a
               className="btn"
-              type="button"
-              onClick={() => {
-                setStage('text');
-                setNote('Напиши условие. Потом алгоритм или фото хода.');
-              }}
+              href="https://alice.yandex.ru/"
+              target="_blank"
+              rel="noreferrer"
             >
-              Напишу сама
-            </button>
+              Распознать в Алисе
+            </a>
           </div>
         </article>
       ) : null}
@@ -246,27 +313,88 @@ export function HomeworkFlow({
           <div className="eyebrow">Условие</div>
           <h3>Сначала текст, потом ход</h3>
           {note ? <p>{note}</p> : null}
+          {aliceKind ? <AliceHint kind={aliceKind} /> : null}
+          {workBlob ? (
+            <p className="timer-hint">
+              Фото хода осталось на эту сессию. Проверяем текст шагов, не
+              картинку.
+            </p>
+          ) : null}
           {busy ? <p>Смотрю… это не зачёт, можно подождать.</p> : null}
           <label className="field">
             <span className="eyebrow">Задача</span>
             <textarea
+              ref={promptRef}
               className="input-area homework-prompt"
-              rows={6}
+              rows={5}
               value={prompt}
               onChange={(event) => setPrompt(event.target.value)}
+              onFocus={() => setKbd(0)}
+              onClick={() => setKbd(0)}
               placeholder="Например: Реши 2x + 3 = 11"
               disabled={busy}
             />
           </label>
+          <WorkSteps
+            steps={workSteps}
+            draft={draft}
+            onChangeSteps={setWorkSteps}
+            onChangeDraft={setDraft}
+            draftRef={workRef}
+            onFocusDraft={() => setKbd(1)}
+            disabled={busy}
+          />
+          <MathKeyboard
+            targets={[
+              { ref: promptRef, value: prompt, onChange: setPrompt },
+              { ref: workRef, value: draft, onChange: setDraft },
+            ]}
+            activeIndex={kbd}
+            disabled={busy}
+          />
+          <p className="timer-hint">
+            Клавиатура пишет в задачу или в текущий шаг.
+          </p>
+          {showHint && topicHint ? (
+            <div className="alice-hint">
+              <p className="eyebrow">Подсказка алгоритма</p>
+              <div className="steps">
+                {topicHint.steps.map((step) => (
+                  <div className="step" key={step}>
+                    <div>{step}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+          {showHint && !topicHint ? (
+            <p>Выбери тему сверху — покажу шаги без модели.</p>
+          ) : null}
           {error ? <p className="form-error">{error}</p> : null}
           <div className="hero-actions">
+            <button
+              className="btn"
+              type="button"
+              disabled={busy}
+              onClick={() => setShowHint((value) => !value)}
+            >
+              {showHint ? 'Скрыть алгоритм' : 'Подсказка алгоритма'}
+            </button>
             <button
               className="btn btn-primary"
               type="button"
               disabled={busy || !prompt.trim()}
               onClick={() => void requestAlgo()}
             >
-              Алгоритм
+              Алгоритм под эту задачу
+            </button>
+            <button
+              className="btn"
+              type="button"
+              disabled={busy || !prompt.trim() || !workText}
+              onClick={() => void requestReview()}
+            >
+              Проверить ход
             </button>
             <button
               className="btn"

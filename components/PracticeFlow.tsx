@@ -17,6 +17,8 @@ import { PauseScreen } from './PauseScreen';
 import { SelfCheck, allChecksOn, toggleCheck } from './SelfCheck';
 import { SelfTag } from './SelfTag';
 import { TimerModeSwitch } from './TimerModeSwitch';
+import { WorkSteps } from './WorkSteps';
+import { MathKeyboard } from './MathKeyboard';
 import type { Attempt, TimerMode, Topic, TopicState } from '@/lib/types';
 
 export function PracticeFlow({
@@ -29,6 +31,7 @@ export function PracticeFlow({
   engageNonce = 0,
   onStuck,
   onEngaged,
+  onModeChange,
 }: {
   topic: Topic;
   onlyTaskId?: string;
@@ -39,6 +42,7 @@ export function PracticeFlow({
   engageNonce?: number;
   onStuck?: () => void;
   onEngaged?: () => void;
+  onModeChange?: (mode: TimerMode) => void;
 }) {
   const tasks = onlyTaskId
     ? topic.tasks.filter((item) => item.id === onlyTaskId)
@@ -68,7 +72,13 @@ export function PracticeFlow({
   );
   const [notebookDone, setNotebookDone] = useState(false);
   const [photo, setPhoto] = useState<File | null>(null);
+  const [workSteps, setWorkSteps] = useState<string[]>([]);
+  const [draft, setDraft] = useState('');
+  const [showHint, setShowHint] = useState(false);
+  const [kbd, setKbd] = useState(0);
   const padRef = useRef<NotebookPadHandle>(null);
+  const draftRef = useRef<HTMLTextAreaElement>(null);
+  const answerRef = useRef<HTMLInputElement>(null);
   const timerArmed = useRef(false);
   const stuckArmed = useRef(false);
   const pop = useCompanionPop(current?.id ?? null);
@@ -78,12 +88,17 @@ export function PracticeFlow({
   const limit = timerSeconds(task?.time_sec ?? 45, mode);
 
   useEffect(() => {
-    setMode(readTimerMode());
+    const next = readTimerMode();
+    setMode(next);
+    onModeChange?.(next);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const changeMode = (next: TimerMode) => {
     setMode(next);
     writeTimerMode(next);
+    if (next === 'exam') setShowHint(false);
+    onModeChange?.(next);
   };
 
   useEffect(() => {
@@ -201,6 +216,9 @@ export function PracticeFlow({
       setChecks([]);
       setNotebookDone(false);
       setPhoto(null);
+      setWorkSteps([]);
+      setDraft('');
+      setShowHint(false);
       padRef.current?.reset();
       return;
     }
@@ -213,6 +231,9 @@ export function PracticeFlow({
     setChecks([]);
     setNotebookDone(false);
     setPhoto(null);
+    setWorkSteps([]);
+    setDraft('');
+    setShowHint(false);
     padRef.current?.reset();
     setStartedAt(Date.now());
     setIndex((value) => value + 1);
@@ -289,6 +310,32 @@ export function PracticeFlow({
         </figure>
       ) : null}
       <p className="prompt">{task.prompt}</p>
+      {mode !== 'exam' && !current ? (
+        <div className="algo-hint-block">
+          <button
+            className="btn"
+            type="button"
+            onClick={() => {
+              setShowHint((value) => !value);
+              onEngaged?.();
+            }}
+          >
+            {showHint ? 'Скрыть алгоритм' : 'Подсказка алгоритма'}
+          </button>
+          {showHint ? (
+            <div className="alice-hint">
+              <p className="eyebrow">Подсказка алгоритма</p>
+              <div className="steps">
+                {topic.steps.map((step) => (
+                  <div className="step" key={step}>
+                    <div>{step}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
       <SelfCheck
         checked={checks}
         onToggle={(id) => setChecks((value) => toggleCheck(value, id))}
@@ -303,15 +350,32 @@ export function PracticeFlow({
           }}
         />
       ) : null}
+      {!current ? (
+        <WorkSteps
+          steps={workSteps}
+          draft={draft}
+          onChangeSteps={setWorkSteps}
+          onChangeDraft={(value) => {
+            setDraft(value);
+            if (value.trim()) onEngaged?.();
+          }}
+          draftRef={draftRef}
+          onFocusDraft={() => setKbd(0)}
+          disabled={Boolean(current)}
+        />
+      ) : null}
       <div className="form-field" style={{ maxWidth: 420 }}>
         <label className="eyebrow" htmlFor="practice-answer">
           Твой ответ
         </label>
         <input
           id="practice-answer"
+          ref={answerRef}
           className="input-answer"
           value={answer}
           disabled={Boolean(current)}
+          onFocus={() => setKbd(1)}
+          onClick={() => setKbd(1)}
           onChange={(event) => {
             setAnswer(event.target.value);
             if (event.target.value.trim()) onEngaged?.();
@@ -319,6 +383,15 @@ export function PracticeFlow({
           placeholder="Например: 4 или x = 4"
         />
       </div>
+      {!current ? (
+        <MathKeyboard
+          targets={[
+            { ref: draftRef, value: draft, onChange: setDraft },
+            { ref: answerRef, value: answer, onChange: setAnswer },
+          ]}
+          activeIndex={kbd}
+        />
+      ) : null}
       {notebook && !current ? (
         <div className="notebook-gate">
           <label className="check-item">
