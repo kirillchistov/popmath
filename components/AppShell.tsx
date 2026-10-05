@@ -47,7 +47,7 @@ export function AppShell({ session, currentPath, children }: AppShellProps) {
         <AppNav username={session.username} currentPath={currentPath} links={links} />
       </header>
       <main id="main">{children}</main>
-      <footer className="footer-note">Этап 5: недельная картина для родителя, без допроса.</footer>
+      <footer className="footer-note">Этап 6: упрощение карточек заданий, добавление новых задач.</footer>
     </div>
   );
 }

@@ -25,15 +25,15 @@ export default async function TodayPage() {
         </article>
         {plan.assigned_tasks.length > 0 ? (
           <article className="panel empty-card from-tutor">
-            <div className="eyebrow">От тьютора · не карта и не тема дня</div>
+            <div className="eyebrow">От тьютора · привет</div>
             <h2>
               {plan.assigned_tasks.length === 1
                 ? 'Задача с урока'
                 : `${plan.assigned_tasks.length} задачи с урока`}
             </h2>
             <p>
-              Это не весь остров. Тьютор положила конкретную штуку сюда, на
-              «Сегодня». Можно пропустить. Пустой лист — тоже ход.
+              Это не весь раздел. Тьютор положила конкретную тему сюда, на
+              «Сегодня». Можно пропустить. Пустой ответ — тоже ответ.
             </p>
             <ul className="week-list from-tutor-list">
               {plan.assigned_tasks.map((item) => (
@@ -61,8 +61,8 @@ export default async function TodayPage() {
                 : `Доделай квиз: ${plan.quizCount} из ${plan.quizTotal}`}
             </h2>
             <p>
-              Не выбирай тему из меню. 10–15 минут: узнать, где ход уже есть,
-              а где пока дыра.
+              Не выбирай тему из меню. 10–15 минут: узнать, где знаний свет,
+              а где пока темно.
             </p>
             <div className="hero-actions">
               <Link className="btn btn-primary" href="/quiz">
