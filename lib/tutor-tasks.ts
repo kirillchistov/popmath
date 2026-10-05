@@ -27,6 +27,8 @@ export async function listTutorTaskCards(
     solved.set(attempt.student_id, set);
   }
 
+  const overlay = await readOverlay();
+  const overlayIds = new Set(overlay.tasks.map((task) => task.id));
   const cards: TutorTaskCard[] = [];
   const seen = new Set<string>();
 
@@ -38,13 +40,14 @@ export async function listTutorTaskCards(
       topic_title: topicTitle,
       placements: plans.map((plan) => ({
         student_id: plan.student_id,
-        on_today: plan.assigned_task_ids.includes(task.id),
+        on_today:
+          !plan.hidden_task_ids.includes(task.id) &&
+          (plan.assigned_task_ids.includes(task.id) || overlayIds.has(task.id)),
         solved: solved.get(plan.student_id)?.has(task.id) ?? false,
       })),
     });
   };
 
-  const overlay = await readOverlay();
   for (const task of overlay.tasks) {
     const found = await getLiveTask(task.id);
     push(task, found?.topic.title ?? task.topic_id);

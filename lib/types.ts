@@ -136,6 +136,7 @@ export interface PlanOverride {
   order: string[];
   opened_new_topic_on: string | null;
   assigned_task_ids: string[];
+  hidden_task_ids: string[];
 }
 
 export interface DigestTopicLine {

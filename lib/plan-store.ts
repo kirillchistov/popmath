@@ -11,6 +11,9 @@ function normalize(plan: Partial<PlanOverride> & { student_id: string }): PlanOv
     assigned_task_ids: Array.isArray(plan.assigned_task_ids)
       ? plan.assigned_task_ids
       : [],
+    hidden_task_ids: Array.isArray(plan.hidden_task_ids)
+      ? plan.hidden_task_ids
+      : [],
   };
 }
 
@@ -50,6 +53,8 @@ async function upsertPlan(
         : (current?.opened_new_topic_on ?? null),
     assigned_task_ids:
       patch.assigned_task_ids ?? current?.assigned_task_ids ?? [],
+    hidden_task_ids:
+      patch.hidden_task_ids ?? current?.hidden_task_ids ?? [],
   });
   const index = plans.findIndex((item) => item.student_id === studentId);
   if (index === -1) plans.push(next);
@@ -87,7 +92,12 @@ export async function assignTaskToStudent(
       : topicId
         ? [topicId, ...current.order.filter((id) => id !== topicId)]
         : current.order;
-  return upsertPlan(studentId, { assigned_task_ids: assigned, order });
+  const hidden = current.hidden_task_ids.filter((id) => id !== taskId);
+  return upsertPlan(studentId, {
+    assigned_task_ids: assigned,
+    hidden_task_ids: hidden,
+    order,
+  });
 }
 
 export async function unassignTaskFromStudent(
@@ -95,7 +105,11 @@ export async function unassignTaskFromStudent(
   taskId: string,
 ): Promise<PlanOverride> {
   const current = await getPlanOverride(studentId);
+  const hidden = current.hidden_task_ids.includes(taskId)
+    ? current.hidden_task_ids
+    : [...current.hidden_task_ids, taskId];
   return upsertPlan(studentId, {
     assigned_task_ids: current.assigned_task_ids.filter((id) => id !== taskId),
+    hidden_task_ids: hidden,
   });
 }

@@ -2,6 +2,7 @@ import { listStudentUsernames } from './auth';
 import { getAllTopics } from './content';
 import { getLiveTask } from './live-content';
 import { buildQueue, pickTodayItem, todayISO } from './plan';
+import { readOverlay } from './content-overlay';
 import { getPlanOverride } from './plan-store';
 import {
   buildTopicProgress,
@@ -31,6 +32,7 @@ export interface StudentPlanView {
   opened_new_topic_on: string | null;
   newTopicBlocked: boolean;
   assigned_task_ids: string[];
+  hidden_task_ids: string[];
   assigned_tasks: AssignedTaskView[];
 }
 
@@ -62,9 +64,17 @@ export async function getStudentPlan(
   const solved = new Set(
     attempts.filter((item) => item.correct).map((item) => item.task_id),
   );
+  const hidden = new Set(override.hidden_task_ids);
+  const overlay = await readOverlay();
+  const taskIds = [
+    ...new Set([
+      ...override.assigned_task_ids,
+      ...overlay.tasks.map((task) => task.id),
+    ]),
+  ];
   const assignedViews: AssignedTaskView[] = [];
-  for (const taskId of override.assigned_task_ids) {
-    if (solved.has(taskId)) continue;
+  for (const taskId of taskIds) {
+    if (hidden.has(taskId) || solved.has(taskId)) continue;
     const found = await getLiveTask(taskId);
     if (!found) continue;
     assignedViews.push({
@@ -86,6 +96,7 @@ export async function getStudentPlan(
     opened_new_topic_on: override.opened_new_topic_on,
     newTopicBlocked,
     assigned_task_ids: override.assigned_task_ids,
+    hidden_task_ids: override.hidden_task_ids,
     assigned_tasks: assignedViews,
   };
 }

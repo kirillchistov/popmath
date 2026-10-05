@@ -122,16 +122,17 @@ export async function POST(request: Request) {
   const known = new Set(
     listStudentUsernames((await listAttempts()).map((item) => item.student_id)),
   );
-  const assignTo = [
+  const requested = [
     ...new Set(
       (Array.isArray(body.assign_to) ? body.assign_to : [])
         .map((item) => String(item).trim())
         .filter(Boolean),
     ),
   ];
-  if (assignTo.some((studentId) => !known.has(studentId))) {
+  if (requested.some((studentId) => !known.has(studentId))) {
     return NextResponse.json({ error: 'Неизвестный ученик' }, { status: 400 });
   }
+  const assignTo = requested.length > 0 ? requested : [...known];
 
   await addOverlayTask(task);
   for (const studentId of assignTo) {
