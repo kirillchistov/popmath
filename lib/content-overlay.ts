@@ -1,3 +1,4 @@
+import seedFile from '@/data/content-overlay.json';
 import { readJsonObject, writeJsonFile } from './json-store';
 import type { Support, Task } from './types';
 
@@ -13,15 +14,10 @@ export interface ContentOverlay {
   supports: OverlaySupport[];
 }
 
-function emptyOverlay(): ContentOverlay {
-  return { tasks: [], supports: [] };
-}
+const seed = seedFile as ContentOverlay;
 
 export async function readOverlay(): Promise<ContentOverlay> {
-  const parsed = await readJsonObject<Partial<ContentOverlay>>(
-    FILE,
-    emptyOverlay(),
-  );
+  const parsed = await readJsonObject<Partial<ContentOverlay>>(FILE, seed);
   return {
     tasks: Array.isArray(parsed.tasks) ? parsed.tasks : [],
     supports: Array.isArray(parsed.supports) ? parsed.supports : [],

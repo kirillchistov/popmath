@@ -1,0 +1,116 @@
+{
+  "tasks": [
+    {
+      "id": "admin-equations-x2-25",
+      "topic_id": "equations",
+      "prompt": "Реши: x² = 25",
+      "answer": "5;-5",
+      "kind": "practice",
+      "explain_ok": "x = 5 или x = -5. У квадрата два корня.",
+      "explain_trap": "Ошибка — записать только 5.",
+      "review_title": "Два корня у x² = a",
+      "time_sec": 45,
+      "tags": [],
+      "trap_answers": [
+        "5",
+        "25"
+      ]
+    },
+    {
+      "id": "admin-equations-muvef5xo",
+      "topic_id": "equations",
+      "prompt": "Реши: -3x+1-3(x+3)=-2(1-x)+2",
+      "answer": "-1",
+      "kind": "practice",
+      "explain_ok": "Раскрой скобки: −6x − 8 = 2x. Тогда −8 = 8x, x = −1.",
+      "explain_trap": "Ошибка — не раскрыть −3(x+3) или потерять знак у −2(1−x).",
+      "review_title": "Сначала скобки",
+      "time_sec": 120,
+      "tags": [],
+      "trap_answers": [
+        "1",
+        "8"
+      ]
+    },
+    {
+      "id": "admin-equations-muvefv5u",
+      "topic_id": "equations",
+      "prompt": "Реши: 2x^2-8=4x^2+4x-(-3+x^2)",
+      "answer": "нет решений",
+      "kind": "practice",
+      "explain_ok": "После скобок получается x² + 4x + 11 = 0. D = 16 − 44 < 0, действительных корней нет.",
+      "explain_trap": "Ошибка — забыть минус перед скобкой (−3 + x²).",
+      "review_title": "Дискриминант меньше нуля",
+      "time_sec": 120,
+      "tags": [],
+      "trap_answers": [
+        "-2",
+        "2"
+      ]
+    },
+    {
+      "id": "admin-equations-muveghlr",
+      "topic_id": "equations",
+      "prompt": "Реши: -4x^2+2x+6=-2x^2+3x-(-3+2x^2)",
+      "answer": "3",
+      "kind": "practice",
+      "explain_ok": "Минус перед скобкой даёт +3 − 2x². Квадраты сокращаются, остаётся x = 3.",
+      "explain_trap": "Ошибка — не раскрыть −(−3 + 2x²).",
+      "review_title": "Квадраты сократились",
+      "time_sec": 120,
+      "tags": [],
+      "trap_answers": [
+        "-3",
+        "2"
+      ]
+    },
+    {
+      "id": "admin-equations-muvegmh3",
+      "topic_id": "equations",
+      "prompt": "Реши: (x-2)^2=(x-9)^2",
+      "answer": "5,5",
+      "kind": "practice",
+      "explain_ok": "x − 2 = x − 9 невозможно. Второй случай: x − 2 = −(x − 9), 2x = 11, x = 5,5.",
+      "explain_trap": "Ошибка — оставить только x − 2 = x − 9.",
+      "review_title": "Два случая у равных квадратов",
+      "time_sec": 120,
+      "tags": [],
+      "trap_answers": [
+        "2",
+        "9"
+      ]
+    },
+    {
+      "id": "admin-equations-muvegmhm",
+      "topic_id": "equations",
+      "prompt": "Реши: (x+1)^2+(x-6)^2=2x^2",
+      "answer": "3,7",
+      "kind": "practice",
+      "explain_ok": "Раскрой: 2x² − 10x + 37 = 2x². Квадраты уходят, 10x = 37, x = 3,7.",
+      "explain_trap": "Ошибка — сложить скобки до возведения в квадрат.",
+      "review_title": "Квадраты уходят",
+      "time_sec": 120,
+      "tags": [],
+      "trap_answers": [
+        "5",
+        "7"
+      ]
+    }
+  ],
+  "supports": [
+    {
+      "id": "support-inequalities-mufexvot",
+      "topic_id": "inequalities",
+      "title": "Знак при делении",
+      "metaphor": "Граница на прямой. Отрицательное число разворачивает стрелку.",
+      "anchor": "Делишь на минус — переверни знак.",
+      "steps": [
+        "Упрости.",
+        "Собери x в одну сторону.",
+        "Если делишь на отрицательное — переверни знак.",
+        "Проверь точкой на прямой."
+      ],
+      "body": "Упрости. Собери x в одну сторону. Если делишь на отрицательное — переверни знак. Проверь точкой на прямой."
+    }
+  ]
+}

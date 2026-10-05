@@ -38,7 +38,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# локальное хранилище попыток
+# локальное хранилище попыток и планов
 /data/*.json
 /data/uploads/
 !/data/.gitkeep
+# задачи и опоры из формы тьютора: без этого файла на Vercel их нет
+!/data/content-overlay.json
