@@ -1,10 +1,27 @@
-import { getQuizQuestions } from './content';
+import { getQuizQuestion, getQuizQuestions } from './content';
 import type { Attempt, TopicProgress, TopicState } from './types';
 
 export function uniqueQuizCount(attempts: Attempt[]): number {
   return new Set(
     attempts.filter((item) => item.kind === 'quiz').map((item) => item.task_id),
   ).size;
+}
+
+export function quizCorrectCount(attempts: Attempt[]): number {
+  return new Set(
+    attempts
+      .filter((item) => item.kind === 'quiz' && item.correct)
+      .map((item) => item.task_id),
+  ).size;
+}
+
+export function withQuizTopics(attempts: Attempt[]): Attempt[] {
+  return attempts.map((item) => {
+    if (item.kind !== 'quiz' || item.topic_id) return item;
+    const topicId = getQuizQuestion(item.task_id)?.topic_id;
+    if (!topicId) return item;
+    return { ...item, topic_id: topicId };
+  });
 }
 
 export function quizTotal(): number {

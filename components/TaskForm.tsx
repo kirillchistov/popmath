@@ -5,7 +5,13 @@ import { useRef, useState } from 'react';
 import type { TopicMeta } from '@/lib/types';
 import { MathKeyboard } from './MathKeyboard';
 
-export function TaskForm({ topics }: { topics: TopicMeta[] }) {
+export function TaskForm({
+  topics,
+  students,
+}: {
+  topics: TopicMeta[];
+  students: string[];
+}) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
@@ -36,15 +42,23 @@ export function TaskForm({ topics }: { topics: TopicMeta[] }) {
           time_sec: Number(data.get('time_sec') ?? 45),
           trap_answers: String(data.get('trap_answers') ?? ''),
           image: String(data.get('image') ?? ''),
+          assign_to: data.getAll('assign_to').map(String),
         }),
       });
-      const payload = (await response.json()) as { error?: string; task?: { id: string } };
+      const payload = (await response.json()) as {
+        error?: string;
+        task?: { id: string };
+        assigned_to?: string[];
+      };
       if (!response.ok) throw new Error(payload.error ?? 'Не удалось сохранить');
       form.reset();
       setPrompt('');
       setAnswer('');
+      const given = payload.assigned_to ?? [];
       setMessage(
-        `Задача ${payload.task?.id ?? ''} сохранена. Ученик увидит её в практике темы. Чтобы карточка всплыла на «Сегодня» — посади в очередь ниже.`,
+        given.length > 0
+          ? `Задача сохранена и стоит на «Сегодня» у: ${given.join(', ')}. Карточка — ниже.`
+          : 'Задача сохранена. Карточка ниже: оттуда её можно дать ученику на «Сегодня».',
       );
       router.refresh();
     } catch (error) {
@@ -59,9 +73,9 @@ export function TaskForm({ topics }: { topics: TopicMeta[] }) {
       <div className="eyebrow">Новая задача</div>
       <h2>Условие, ответ, как надо, ловушка</h2>
       <p>
-        После сохранения задача живёт в теме: ученик встретит её в практике и в
-        самопроверке. Чтобы она отдельно всплыла на «Сегодня» — посади в очередь
-        ниже («Дать ученику»). Список выданных виден здесь же, в блоке очереди.
+        После сохранения карточка появится ниже. Отмеченные ученики увидят её в
+        блоке «Сегодня», пока не ответят верно. Очередь тем эту карточку не
+        заменяет.
       </p>
       <form className="tutor-form" onSubmit={submit}>
         <label className="field">
@@ -125,6 +139,24 @@ export function TaskForm({ topics }: { topics: TopicMeta[] }) {
           <span className="eyebrow">Картинка, если нужна</span>
           <input className="input-answer" name="image" placeholder="/images/geo-rect-grid.svg" />
         </label>
+        {students.length > 0 ? (
+          <fieldset className="field field-wide">
+            <span className="eyebrow">Сразу на «Сегодня»</span>
+            <div className="student-picks">
+              {students.map((student) => (
+                <label key={student}>
+                  <input
+                    type="checkbox"
+                    name="assign_to"
+                    value={student}
+                    defaultChecked
+                  />
+                  {student}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        ) : null}
         <div className="field field-wide">
           <span className="eyebrow">Клавиатура — в условие или ответ</span>
           <MathKeyboard

@@ -1,9 +1,10 @@
 import { listStudentUsernames } from './auth';
-import { getLiveTopic } from './live-content';
+import { getLiveTopicsMeta, getLiveTopic } from './live-content';
 import { weekStartISO } from './plan';
+import { STATE_LABEL } from './progress';
 import { listCohortPlans, type StudentPlanView } from './student-plan';
 import { listAttempts } from './store';
-import type { ErrorCode } from './types';
+import type { ErrorCode, TopicState } from './types';
 
 export const ERROR_LABEL: Record<ErrorCode, string> = {
   knowledge: 'не поняла тему',
@@ -23,6 +24,10 @@ export interface CohortRow {
   week_topic_id: string | null;
   week_topic_title: string;
   quiz_done: boolean;
+  quiz_count: number;
+  quiz_correct: number;
+  quiz_total: number;
+  topics: { topic_id: string; title: string; state: TopicState; label: string }[];
   assigned_count: number;
 }
 
@@ -44,6 +49,8 @@ export async function listCohortRows(): Promise<CohortRow[]> {
   const students = listStudentUsernames(extras);
   const weekStart = weekStartISO();
   const byStudent = new Map(plans.map((plan) => [plan.student_id, plan]));
+  const metas = await getLiveTopicsMeta();
+  const titleOf = (id: string) => metas.find((item) => item.id === id)?.title ?? id;
 
   return Promise.all(
     students.map(async (studentId) => {
@@ -69,6 +76,15 @@ export async function listCohortRows(): Promise<CohortRow[]> {
         week_topic_id: focusId,
         week_topic_title: topic?.title ?? 'ещё нет фокуса',
         quiz_done: Boolean(plan?.quizDone),
+        quiz_count: plan?.quizCount ?? 0,
+        quiz_correct: plan?.quizCorrect ?? 0,
+        quiz_total: plan?.quizTotal ?? 0,
+        topics: (plan?.progress ?? []).map((item) => ({
+          topic_id: item.topic_id,
+          title: titleOf(item.topic_id),
+          state: item.state,
+          label: STATE_LABEL[item.state],
+        })),
         assigned_count: plan?.assigned_tasks.length ?? 0,
       };
     }),

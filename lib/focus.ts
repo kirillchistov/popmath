@@ -23,10 +23,14 @@ export function needsNotebook(task: Task | undefined): boolean {
 export function focusPool(topic: Topic): Task[] {
   const tags = WEEK_FOCUS_TAGS[topic.id];
   if (!tags) return topic.tasks;
-  const pool = topic.tasks.filter((task) =>
+  const tagged = topic.tasks.filter((task) =>
     task.tags.some((tag) => tags.includes(tag)),
   );
-  return pool.length > 0 ? pool : topic.tasks;
+  const added = topic.tasks.filter(
+    (task) => task.id.startsWith('admin-') && !tagged.includes(task),
+  );
+  if (tagged.length === 0) return topic.tasks;
+  return [...added, ...tagged];
 }
 
 export function pickSitting(topic: Topic, solvedIds: string[]): Task[] {

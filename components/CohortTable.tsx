@@ -35,9 +35,20 @@ export function CohortTable({ rows }: { rows: CohortRow[] }) {
             <tr key={row.student_id}>
               <td>
                 <strong>{row.student_id}</strong>
-                <p className="eyebrow">
-                  {row.quiz_done ? 'квиз есть' : 'квиз не закрыт'}
+                <p>
+                  {row.quiz_count === 0
+                    ? 'Квиз ещё не начат'
+                    : row.quiz_done
+                      ? `Квиз закрыт: ${row.quiz_correct} из ${row.quiz_total} верно`
+                      : `Квиз: ${row.quiz_count} из ${row.quiz_total}, верных ${row.quiz_correct}`}
                 </p>
+                <div className="pill-row">
+                  {row.topics.map((topic) => (
+                    <span className={`pill state-${topic.state}`} key={topic.topic_id}>
+                      {topic.title}: {topic.label}
+                    </span>
+                  ))}
+                </div>
               </td>
               <td>{formatWhen(row.last_at)}</td>
               <td>{row.week_attempts}</td>

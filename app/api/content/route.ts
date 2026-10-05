@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
+import { listStudentUsernames } from '@/lib/auth';
 import { getBaseTopics } from '@/lib/content';
 import { addOverlaySupport, addOverlayTask } from '@/lib/content-overlay';
 import { getLiveTask, getLiveTopicsMeta, loadLiveTopics } from '@/lib/live-content';
+import { assignTaskToStudent } from '@/lib/plan-store';
 import { getSession } from '@/lib/session';
+import { listAttempts } from '@/lib/store';
 import type { Task } from '@/lib/types';
 
 export const runtime = 'nodejs';
@@ -36,6 +39,7 @@ export async function POST(request: Request) {
     tags?: string;
     trap_answers?: string;
     image?: string;
+    assign_to?: string[];
     title?: string;
     metaphor?: string;
     anchor?: string;
@@ -115,6 +119,27 @@ export async function POST(request: Request) {
     image: body.image?.trim() || undefined,
   };
 
+  const known = new Set(
+    listStudentUsernames((await listAttempts()).map((item) => item.student_id)),
+  );
+  const assignTo = [
+    ...new Set(
+      (Array.isArray(body.assign_to) ? body.assign_to : [])
+        .map((item) => String(item).trim())
+        .filter(Boolean),
+    ),
+  ];
+  if (assignTo.some((studentId) => !known.has(studentId))) {
+    return NextResponse.json({ error: 'Неизвестный ученик' }, { status: 400 });
+  }
+
   await addOverlayTask(task);
-  return NextResponse.json({ task, topics: await loadLiveTopics() });
+  for (const studentId of assignTo) {
+    await assignTaskToStudent(studentId, task.id, topicId);
+  }
+  return NextResponse.json({
+    task,
+    assigned_to: assignTo,
+    topics: await loadLiveTopics(),
+  });
 }

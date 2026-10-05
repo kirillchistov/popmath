@@ -1,3 +1,4 @@
+import { AddedTasks } from '@/components/AddedTasks';
 import { AppShell } from '@/components/AppShell';
 import { AssignForm } from '@/components/AssignForm';
 import { DigestPanel } from '@/components/DigestPanel';
@@ -16,8 +17,10 @@ import { listStudentUsernames } from '@/lib/auth';
 import { listLatestDigests } from '@/lib/digest-store';
 import { listCohortPlans } from '@/lib/student-plan';
 import { listAttempts } from '@/lib/store';
+import { listTutorTaskCards } from '@/lib/tutor-tasks';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 export default async function TutorPage() {
   const session = await requireRole('tutor');
@@ -30,6 +33,7 @@ export default async function TutorPage() {
   ]);
   const students = listStudentUsernames(attempts.map((item) => item.student_id));
   const metas = topics.map(topicToMeta);
+  const added = await listTutorTaskCards(plans, attempts);
 
   return (
     <AppShell session={session} currentPath="/tutor">
@@ -47,7 +51,8 @@ export default async function TutorPage() {
           <h2>Кто был, где дыра, какая тема недели</h2>
           <CohortTable rows={cohort} />
         </article>
-        <TaskForm topics={metas} />
+        <TaskForm topics={metas} students={students} />
+        <AddedTasks cards={added} />
         <SupportForm topics={metas} />
         <DigestPanel students={students} initial={digests} />
         <AssignForm topics={topics} plans={plans} />

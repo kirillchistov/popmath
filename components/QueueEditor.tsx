@@ -66,8 +66,8 @@ export function QueueEditor({
             <h2>{plan.student_id}</h2>
             <p>
               {plan.quizDone
-                ? 'Неделя берёт только счёт, уравнения и треугольники. Остальные острова на карте остаются, но в неделю не садятся.'
-                : `Квиз ещё не закрыт: ${plan.quizCount} из ${plan.quizTotal}.`}
+                ? `Квиз закрыт: ${plan.quizCorrect} из ${plan.quizTotal} верно. Неделя берёт счёт, уравнения и треугольники.`
+                : `Квиз ещё не закрыт: ${plan.quizCount} из ${plan.quizTotal}, верных ${plan.quizCorrect}.`}
             </p>
             <ol className="queue-list">
               {order.map((topicId, index) => {

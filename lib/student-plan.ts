@@ -3,7 +3,13 @@ import { getAllTopics } from './content';
 import { getLiveTask } from './live-content';
 import { buildQueue, pickTodayItem, todayISO } from './plan';
 import { getPlanOverride } from './plan-store';
-import { buildTopicProgress, quizTotal, uniqueQuizCount } from './progress';
+import {
+  buildTopicProgress,
+  quizCorrectCount,
+  quizTotal,
+  uniqueQuizCount,
+  withQuizTopics,
+} from './progress';
 import { listAttempts } from './store';
 import type { QueueItem, Task, TopicProgress } from './types';
 
@@ -15,6 +21,7 @@ export interface AssignedTaskView {
 export interface StudentPlanView {
   student_id: string;
   quizCount: number;
+  quizCorrect: number;
   quizTotal: number;
   quizDone: boolean;
   progress: TopicProgress[];
@@ -30,7 +37,7 @@ export interface StudentPlanView {
 export async function getStudentPlan(
   studentId: string,
 ): Promise<StudentPlanView> {
-  const attempts = await listAttempts(studentId);
+  const attempts = withQuizTopics(await listAttempts(studentId));
   const topicIds = getAllTopics().map((topic) => topic.id);
   const progress = buildTopicProgress(attempts, topicIds);
   const override = await getPlanOverride(studentId);
@@ -69,6 +76,7 @@ export async function getStudentPlan(
   return {
     student_id: studentId,
     quizCount,
+    quizCorrect: quizCorrectCount(attempts),
     quizTotal: total,
     quizDone: quizCount >= total,
     progress,
