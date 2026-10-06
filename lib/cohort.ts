@@ -1,5 +1,6 @@
 import { listStudentUsernames } from './auth';
 import { getLiveTopicsMeta, getLiveTopic } from './live-content';
+import { marksInWeek } from './marks';
 import { weekStartISO } from './plan';
 import { STATE_LABEL } from './progress';
 import { listCohortPlans, type StudentPlanView } from './student-plan';
@@ -19,6 +20,7 @@ export interface CohortRow {
   student_id: string;
   last_at: string | null;
   week_attempts: number;
+  week_marks: number;
   dominant_error: ErrorCode | null;
   dominant_error_label: string;
   week_topic_id: string | null;
@@ -71,6 +73,7 @@ export async function listCohortRows(): Promise<CohortRow[]> {
         student_id: studentId,
         last_at: own[0]?.created_at ?? null,
         week_attempts: weekItems.length,
+        week_marks: marksInWeek(own, weekStart),
         dominant_error: dominant,
         dominant_error_label: dominant ? ERROR_LABEL[dominant] : 'пока тихо',
         week_topic_id: focusId,

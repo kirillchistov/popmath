@@ -1,11 +1,15 @@
 import Link from 'next/link';
 import { AppShell } from '@/components/AppShell';
 import { Companion } from '@/components/Companion';
+import { SittingDots } from '@/components/SittingDots';
 import { TheoryMarks } from '@/components/TheoryMarks';
 import { TopicList } from '@/components/TopicList';
+import { pickSitting } from '@/lib/focus';
 import { getLiveTopic, getLiveTopicsMeta } from '@/lib/live-content';
+import { todayISO } from '@/lib/plan';
 import { requireSession } from '@/lib/session';
 import { getStudentPlan } from '@/lib/student-plan';
+import { listAttempts } from '@/lib/store';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -17,6 +21,20 @@ export default async function TodayPage() {
   const todayTopic = plan.todayItem
     ? await getLiveTopic(plan.todayItem.topic_id)
     : null;
+  const attempts = await listAttempts(session.username);
+  const solvedIds = attempts.filter((item) => item.correct).map((item) => item.task_id);
+  const sitting = todayTopic ? pickSitting(todayTopic, solvedIds) : [];
+  const today = todayISO();
+  const sittingDone = new Set(
+    attempts
+      .filter(
+        (item) =>
+          item.correct &&
+          item.topic_id === todayTopic?.id &&
+          item.created_at.slice(0, 10) === today,
+      )
+      .map((item) => item.task_id),
+  ).size;
 
   return (
     <AppShell session={session} currentPath="/">
@@ -75,6 +93,9 @@ export default async function TodayPage() {
                 {plan.todayItem.role === 'focus' ? 'основное' : 'повторение'}
               </p>
               <h2>{todayTopic.title}</h2>
+              {sitting.length > 0 ? (
+                <SittingDots done={sittingDone} total={sitting.length} />
+              ) : null}
               <p className="prompt">{todayTopic.phrase}</p>
               <p>{plan.todayItem.reason}</p>
               {plan.newTopicBlocked ? (

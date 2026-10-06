@@ -173,6 +173,7 @@ export interface DigestPayload {
   dont_home: string[];
   letter: string;
   theory_gaps?: string[];
+  marks?: number;
 }
 
 export interface DigestRecord {

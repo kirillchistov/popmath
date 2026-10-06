@@ -5,10 +5,13 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { postAttempt } from '@/lib/client-attempts';
 import type { CompanionEvent } from '@/lib/companion';
-import { needsNotebook, pickSitting } from '@/lib/focus';
+import { taskHasDiscriminant } from '@/lib/faces';
+import { needsNotebook, pickSitting, SITTING_SIZE } from '@/lib/focus';
 import { readTimerMode, timerSeconds, writeTimerMode } from '@/lib/timer';
 import { MEMORY_LABELS } from '@/lib/voice';
 import { BlankStart } from './BlankStart';
+import { MoveFace } from './MoveFace';
+import { SittingDots } from './SittingDots';
 import { Companion, useCompanionPop } from './Companion';
 import { GeoStart } from './GeoStart';
 import { NotebookPad, type NotebookPadHandle } from './NotebookPad';
@@ -62,6 +65,7 @@ export function PracticeFlow({
   const [paused, setPaused] = useState(false);
   const [streak, setStreak] = useState(0);
   const [wins, setWins] = useState(0);
+  const [justSolved, setJustSolved] = useState<string[]>([]);
   const [afterMiss, setAfterMiss] = useState(false);
   const [companionEvent, setCompanionEvent] = useState<CompanionEvent>({
     kind: 'idle',
@@ -192,6 +196,9 @@ export function PracticeFlow({
         photo: shot,
       });
       setCurrent(attempt);
+      if (attempt.correct) {
+        setJustSolved((ids) => (ids.includes(task.id) ? ids : [...ids, task.id]));
+      }
       const nextWins = attempt.correct ? wins + 1 : 0;
       setCompanionEvent({
         kind: 'result',
@@ -262,10 +269,18 @@ export function PracticeFlow({
   }
 
   if (finished) {
+    const sittingDone = work.tasks.filter(
+      (item) => solvedIds.includes(item.id) || justSolved.includes(item.id),
+    ).length;
+    const showFace = work.tasks.some((item) => taskHasDiscriminant(item));
     return (
       <article className="panel practice-card">
         <div className="eyebrow">Практика</div>
         <h2>Тема пройдена без спешки</h2>
+        {work.tasks.length <= SITTING_SIZE ? (
+          <SittingDots done={sittingDone} total={work.tasks.length} />
+        ) : null}
+        {showFace ? <MoveFace /> : null}
         <Companion event={{ kind: 'idle' }} />
         <p>В разборе видно, где ход держится, а где глаза убежали или пока было пусто.</p>
         <div className="hero-actions">

@@ -1,4 +1,5 @@
 import { getDigestByToken } from '@/lib/digest-store';
+import { markWord } from '@/lib/marks';
 import type { DigestPayload } from '@/lib/types';
 
 export const runtime = 'nodejs';
@@ -62,6 +63,12 @@ function DigestBlocks({ payload }: { payload: DigestPayload }) {
         <p>{payload.error_body}</p>
         {payload.visits > 0 ? (
           <p>Заходов на этой неделе: {payload.visits}. Важнее регулярность, чем длина сидения.</p>
+        ) : null}
+        {typeof payload.marks === 'number' ? (
+          <p>
+            За неделю {payload.marks} {markWord(payload.marks)}
+            {payload.marks > 0 ? ', можно обменять' : ''}.
+          </p>
         ) : null}
       </article>
 

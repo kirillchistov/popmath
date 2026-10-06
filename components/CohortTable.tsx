@@ -1,4 +1,5 @@
 import { ERROR_LABEL, type CohortRow } from '@/lib/cohort';
+import { markWord } from '@/lib/marks';
 
 function formatWhen(value: string | null) {
   if (!value) return 'ещё не заходила';
@@ -51,7 +52,13 @@ export function CohortTable({ rows }: { rows: CohortRow[] }) {
                 </div>
               </td>
               <td>{formatWhen(row.last_at)}</td>
-              <td>{row.week_attempts}</td>
+              <td>
+                {row.week_attempts}
+                <p>
+                  {row.week_marks} {markWord(row.week_marks)}
+                  {row.week_marks > 0 ? ', можно обменять' : ''}
+                </p>
+              </td>
               <td>
                 {row.dominant_error
                   ? ERROR_LABEL[row.dominant_error]

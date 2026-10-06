@@ -3,7 +3,9 @@
 import Link from 'next/link';
 import { useEffect, useState, type ReactNode } from 'react';
 import { getCountCards } from '@/lib/count';
+import { supportHasDiscriminant } from '@/lib/faces';
 import type { Support, Topic } from '@/lib/types';
+import { MoveFace } from './MoveFace';
 
 export function TopicAids({
   topic,
@@ -142,6 +144,7 @@ export function AidCard({
 export function SupportBlock({ card }: { card: Support }) {
   return (
     <div>
+      {supportHasDiscriminant(card) ? <MoveFace /> : null}
       <strong>{card.title}</strong>
       {card.metaphor ? <p className="prompt">{card.metaphor}</p> : null}
       {card.anchor ? <p>Якорь: {card.anchor}</p> : null}

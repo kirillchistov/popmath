@@ -1,4 +1,5 @@
 import { getLiveTopic } from './live-content';
+import { markWord, marksInWeek } from './marks';
 import { weekStartISO } from './plan';
 import { getStudentPlan } from './student-plan';
 import { listAttempts } from './store';
@@ -79,6 +80,11 @@ export async function buildDigestPayload(
     listTheoryMarks(studentId),
   ]);
   const weekItems = attempts.filter((item) => item.created_at.slice(0, 10) >= weekStart);
+  const marks = marksInWeek(attempts, weekStart);
+  const marksLine =
+    marks > 0
+      ? `За неделю ${marks} ${markWord(marks)}, можно обменять.`
+      : 'За неделю 0 марок.';
   const errorCodes = weekItems
     .filter((item) => !item.correct)
     .flatMap((item) => (item.self_tag ? [item.self_tag] : (item.error_codes ?? [])));
@@ -151,6 +157,7 @@ export async function buildDigestPayload(
 
   const letter = [
     `Неделя ${weekLabel(weekStart)}.`,
+    marksLine,
     holds.length
       ? `Уже держится: ${holds.map((item) => item.title).join(', ')}.`
       : 'Пока рано говорить, что что-то уже держится. Это старт, не пустая неделя.',
@@ -179,5 +186,6 @@ export async function buildDigestPayload(
     dont_home: dontHome,
     letter,
     theory_gaps: theoryGaps,
+    marks,
   };
 }
