@@ -34,8 +34,7 @@ export default async function TodayPage() {
                   : `${plan.assigned_tasks.length} ${taskWord(plan.assigned_tasks.length)} от тьютора`}
               </h2>
               <p>
-                Это отдельные карточки, не вся тема. Можно пропустить. Пустой
-                ответ — тоже ответ.
+                Несколько карточек, не большая тема. Можно их пропустить, если пока не готова.
               </p>
               <ul className="week-list from-tutor-list">
                 {plan.assigned_tasks.map((item) => (
@@ -61,8 +60,7 @@ export default async function TodayPage() {
                   : `Доделай квиз: ${plan.quizCount} из ${plan.quizTotal}`}
               </h2>
               <p>
-                Не выбирай тему из меню. 10–15 минут: узнать, где знаний свет,
-                а где пока темно.
+                Проходи ближайший квиз, проверь свои знания и пробелы.
               </p>
               <div className="hero-actions">
                 <Link className="btn btn-primary" href="/quiz">
