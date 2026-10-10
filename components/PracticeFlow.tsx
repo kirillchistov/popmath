@@ -141,8 +141,16 @@ export function PracticeFlow({
       setCompanionEvent({ kind: 'nudge' });
       return;
     }
-    setCompanionEvent({ kind: 'idle', checksOn: allChecksOn(checks) });
-  }, [checks, current, index, stuck]);
+    if (showHint) {
+      setCompanionEvent({ kind: 'hint' });
+      return;
+    }
+    setCompanionEvent({
+      kind: 'idle',
+      checksOn: allChecksOn(checks),
+      timed: mode !== 'off',
+    });
+  }, [checks, current, index, stuck, showHint, mode]);
 
   useEffect(() => {
     stuckArmed.current = false;
@@ -309,7 +317,7 @@ export function PracticeFlow({
           {mode !== 'off' ? <span className="timer">{formatTime(seconds)}</span> : null}
         </div>
       </div>
-      <Companion event={companionEvent} pop={pop} />
+      <Companion event={companionEvent} pop={pop} busy={busy} />
       <TimerModeSwitch mode={mode} onChange={changeMode} />
       {topicState === 'holds' && mode === 'off' ? (
         <div className="timer-suggest">

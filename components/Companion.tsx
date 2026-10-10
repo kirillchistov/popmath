@@ -1,23 +1,48 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { pickCompanion, type CompanionEvent, type CompanionView } from '@/lib/companion';
+import {
+  BREAK_AFTER_MS,
+  COMPANION_SRCS,
+  pickCompanion,
+  type CompanionEvent,
+  type CompanionView,
+} from '@/lib/companion';
 
 export function Companion({
   event,
   pop = false,
+  busy = false,
 }: {
   event: CompanionEvent;
   pop?: boolean;
+  busy?: boolean;
 }) {
   const previous = useRef('');
-  const key = JSON.stringify(event);
+  const breakFrom = useRef(0);
+  const shown: CompanionEvent = busy ? { kind: 'checking' } : event;
+  const key = JSON.stringify(shown);
   const [view, setView] = useState<CompanionView>(() =>
-    pickCompanion(event, ''),
+    pickCompanion(shown, ''),
   );
 
   useEffect(() => {
-    const next = pickCompanion(event, previous.current);
+    breakFrom.current = Date.now();
+    for (const src of COMPANION_SRCS) {
+      const img = new Image();
+      img.src = src;
+    }
+  }, []);
+
+  useEffect(() => {
+    const now = Date.now();
+    const breakDue =
+      breakFrom.current > 0 && now - breakFrom.current >= BREAK_AFTER_MS;
+    const next = pickCompanion(shown, previous.current, {
+      hour: new Date(now).getHours(),
+      breakDue,
+    });
+    if (next.mood === 'snack') breakFrom.current = now;
     previous.current = next.line;
     setView(next);
     // event is represented by key to avoid identity churn

@@ -96,7 +96,7 @@ export function CheckFlow({ tasks }: { tasks: Task[] }) {
         Самопроверка · {index + 1} / {tasks.length}
       </div>
       <h2>Сначала чеклист, потом ответ</h2>
-      <Companion event={companionEvent} pop={pop} />
+      <Companion event={companionEvent} pop={pop} busy={busy} />
       <p>Таймера нет. Задача знакомая специально: тренируем не тему, а привычку проверить.</p>
       <p className="prompt">{task.prompt}</p>
       <SelfCheck

@@ -117,7 +117,7 @@ export function QuizFlow({ questions }: QuizFlowProps) {
     }
     setCurrent(null);
     setSelected('');
-    setCompanionEvent({ kind: 'idle' });
+    setCompanionEvent({ kind: 'idle', timed: mode !== 'off' });
     setStartedAt(Date.now());
     setIndex((value) => value + 1);
   };
@@ -185,7 +185,7 @@ export function QuizFlow({ questions }: QuizFlowProps) {
       <div className="progress" aria-hidden="true">
         <span style={{ width: `${(index / questions.length) * 100}%` }} />
       </div>
-      <Companion event={companionEvent} pop={pop} />
+      <Companion event={companionEvent} pop={pop} busy={busy} />
       <TimerModeSwitch mode={mode} onChange={changeMode} />
       <div className="pill-row">
         <span className="pill">{question.topic_label}</span>
